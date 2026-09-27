@@ -3347,6 +3347,7 @@
 	gap: 6px;
 	flex-wrap: wrap;
 	flex: 1;
+	min-width: 0;
 }
 
 /* Textarea sizing */
@@ -3550,7 +3551,10 @@
 	background: var(--background-primary-alt);
 	font-size: var(--font-ui-smaller);
 	color: var(--text-normal);
+	box-sizing: border-box;
+	min-width: 0;
 	max-width: 100%;
+	flex: 0 1 auto;
 }
 
 .chat-attachment-icon {
@@ -3558,6 +3562,7 @@
 }
 
 .chat-attachment-name {
+	flex: 1 1 auto;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

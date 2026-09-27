@@ -187,6 +187,8 @@ export interface ChatSession {
 	thinkingEnabled?: boolean;
 	/** Unsent composer text saved for recovery across restarts and tab switches */
 	draft?: string;
+	/** Unsent composer attachments scoped to this chat session. */
+	draftAttachments?: Attachment[];
 	/** Whether this session is connected to a relay server for multi-user sync */
 	relayEnabled?: boolean;
 	/** IDs of remote users participating in this session (relay user IDs) */

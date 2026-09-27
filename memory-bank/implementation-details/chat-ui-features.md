@@ -74,7 +74,9 @@ When Enter is configured for a new line, Shift+Enter and Cmd/Ctrl+Enter still se
 **Feature:** Allow users to attach vault files (markdown notes, images, PDFs) to chat messages for LLM consumption.
 
 **State:**
-- `messageAttachments: Attachment[]` in `ChatApp.tsx`
+- `messageAttachments: Attachment[]` in `ChatApp.tsx`, backed by the active
+  session's `draftAttachments` so switching tabs restores that chat's unsent
+  files instead of carrying them to another chat
 - Passed down: `ChatApp` → `ChatInput` via `attachments` and `onAttachmentsChange` props
 
 **UI:**
@@ -101,6 +103,10 @@ When Enter is configured for a new line, Shift+Enter and Cmd/Ctrl+Enter still se
 - `src/context/AttachmentEngine.ts` — attachment resolution engine
 - `src/api.ts` — `SdkMessage`, `MessageContentPart` multimodal types
 - `src/types.ts` — `Attachment` interface
+
+Unsent attachments are session-scoped while the chat view is open. Empty draft
+sessions are still excluded from saved chat data until the first message is
+sent.
 
 ### Group-chat full replay (T19a, 2026-08-14)
 

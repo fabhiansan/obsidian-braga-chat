@@ -172,6 +172,33 @@ const ChatApp: React.FC<ChatAppProps> = ({
 		() => sessions.find((session) => session.id === activeSessionId),
 		[sessions, activeSessionId],
 	);
+	useEffect(() => {
+		ui.setMessageAttachments(activeSession?.draftAttachments ?? []);
+	}, [
+		activeSessionId,
+		activeSession?.draftAttachments,
+		ui.setMessageAttachments,
+	]);
+	const handleAttachmentsChange = useCallback(
+		(attachments: import("../types").Attachment[]) => {
+			ui.setMessageAttachments(attachments);
+			if (!activeSessionId) return;
+			setSessions((current) =>
+				current.map((session) =>
+					session.id === activeSessionId
+						? {
+								...session,
+								draftAttachments:
+									attachments.length > 0
+										? attachments
+										: undefined,
+							}
+						: session,
+				),
+			);
+		},
+		[activeSessionId, setSessions, ui.setMessageAttachments],
+	);
 	const modelOverrides = activeSession?.modelOverrides;
 	const isMultiAgentSelection = ui.selectedProfileIds.size > 1;
 	const getModelOverrides = useCallback(
@@ -1114,7 +1141,7 @@ const ChatApp: React.FC<ChatAppProps> = ({
 				onApproveTool={actions.handleApproveTool}
 				onRejectTool={actions.handleRejectTool}
 				attachments={ui.messageAttachments}
-				onAttachmentsChange={ui.setMessageAttachments}
+				onAttachmentsChange={handleAttachmentsChange}
 				pressEnterToSend={plugin.settings.pressEnterToSend}
 				tokenTotal={(() => {
 					const session = activeSessionId
