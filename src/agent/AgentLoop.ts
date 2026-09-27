@@ -154,6 +154,9 @@ function formatToolResult(toolName: string, result: ToolResult): string {
 			return output;
 		}
 
+		case "query_dataview":
+			return result.content ?? "(No results.)";
+
 		case "create_notes": {
 			const created = result.createdPaths?.length ?? result.count ?? 0;
 			const skipped = result.skippedPaths?.length ?? 0;

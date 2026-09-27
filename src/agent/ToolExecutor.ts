@@ -20,6 +20,10 @@ import { SessionHandlers } from "./tools/handlers/sessionHandlers";
 import { SettingsHandlers } from "./tools/handlers/settingsHandlers";
 import { VaultHandlers } from "./tools/handlers/vaultHandlers";
 import { WebHandlers } from "./tools/handlers/webHandlers";
+import {
+	DataviewHandlers,
+	hasDataviewQueryApi,
+} from "./tools/handlers/DataviewHandlers";
 import { type ToolHandlerContext } from "./tools/ToolHandlerContext";
 import {
 	mutationTargets,
@@ -42,6 +46,7 @@ export class ToolExecutor {
 	private readonly settingsHandlers: SettingsHandlers;
 	private readonly vaultHandlers: VaultHandlers;
 	private readonly webHandlers: WebHandlers;
+	private readonly dataviewHandlers: DataviewHandlers;
 	private readonly targetLocks: TargetLockManager;
 
 	constructor(
@@ -86,6 +91,7 @@ export class ToolExecutor {
 		this.settingsHandlers = new SettingsHandlers(context);
 		this.vaultHandlers = new VaultHandlers(context);
 		this.webHandlers = new WebHandlers(context);
+		this.dataviewHandlers = new DataviewHandlers(context);
 		// Build the same descriptor registry used to expose tools to the model.
 		// Built-in and provider execution both pass through this map.
 		const builtInDefinitions = createBuiltInToolDefinitionsWithExecutors({
@@ -261,6 +267,13 @@ export class ToolExecutor {
 						query?: string;
 					},
 				),
+			query_dataview: (call) =>
+				this.dataviewHandlers.queryDataview(
+					call.args as {
+						query: string;
+						max_output_chars?: number;
+					},
+				),
 			create_folder: (call) =>
 				this.vaultHandlers.createFolder(call.args as { path: string }),
 			move_note: (call) =>
@@ -284,6 +297,7 @@ export class ToolExecutor {
 				enableMemoryAuditTool:
 					this.settings?.intelligence?.enableMemoryAuditTool,
 				developerMode: this.settings?.developerMode,
+				dataviewAvailable: hasDataviewQueryApi(app),
 			},
 		);
 	}

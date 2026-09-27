@@ -618,6 +618,7 @@ export class Orchestrator {
 					? `\n${describeToolsForPrompt(definitions)}`
 					: "\n(No tools are currently available.)") +
 				"\n\nWhen the user asks to find, list, or search for notes, ALWAYS use search_notes, list_notes, or search_note_content." +
+				" When the user asks for a Dataview/DQL query, use query_dataview when it is available; it accepts DQL, not DataviewJS." +
 				" For several search terms, prefer one search_note_content call with match_mode=and or any instead of separate searches." +
 				" When the user asks whether you can search past sessions, chats, conversations, or what you discussed previously, say that you can search saved chat history and call search_past_sessions with the relevant keywords." +
 				" Do not say you cannot search — you have the search_notes, list_notes, and search_note_content tools." +

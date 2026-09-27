@@ -15,6 +15,7 @@ const EXPECTED_TOOLS = [
 	"list_notes",
 	"count_notes",
 	"get_note_metadata",
+	"query_dataview",
 	"create_folder",
 	"move_note",
 	"delete_note",

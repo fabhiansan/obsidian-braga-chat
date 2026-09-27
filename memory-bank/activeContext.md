@@ -1,5 +1,16 @@
 # Active Context
 
+### 2026-09-27 — Optional Dataview DQL tool
+
+- Added read-only `query_dataview`, exposed only when Dataview's public query
+  API is available. It runs DQL through `tryQueryMarkdown` or the compatible
+  `queryMarkdown` result API; DataviewJS is not executed.
+- Query input is capped at 5,000 characters and formatted output at 12,000
+  characters (8,000 by default). Tool exposure and execution share the normal
+  built-in registry for native and OpenResponses calls.
+- TypeScript and production bundle passed. Live Obsidian acceptance with
+  Dataview installed remains unverified.
+
 ### 2026-09-26 — T69a Codex auth and T14 OpenClaw frontend direction
 
 - Desktop Codex subscription auth remains a supported product option without

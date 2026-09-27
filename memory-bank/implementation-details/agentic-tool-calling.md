@@ -8,6 +8,18 @@ The LLM acts as an agent that can read, edit, create, move, delete, and organize
 
 **Status**: ✅ Tool layer implemented. AgentLoop extracted. PendingToolCard created. Tool result formatting active.
 
+### Optional Dataview DQL Queries (2026-09-27)
+
+The read-only `query_dataview` tool is exposed only when the loaded Dataview
+plugin provides its public `tryQueryMarkdown` or `queryMarkdown` API. It runs
+DQL only, caps query input at 5,000 characters, and caps formatted output at
+12,000 characters (8,000 by default). It does not execute DataviewJS. The
+capability uses the shared registry and executor so availability, prompting,
+native tool calls, and OpenResponses calls use the same definition.
+
+TypeScript and the production bundle passed. Live Obsidian acceptance with
+Dataview installed remains unverified.
+
 ## Current Audit Boundary — 2026-08-25
 
 The registry now contains 24 built-in tools plus opt-in read-only provider

@@ -234,6 +234,31 @@ export const getNoteMetadataTool = t({
 	}),
 });
 
+export const queryDataviewTool = t({
+	description:
+		"Run a read-only Dataview Query Language (DQL) query against the vault. " +
+		"Use when the user asks for results computed from Dataview fields, such as filtered or sorted note tables. " +
+		"This accepts DQL only; it does not execute DataviewJS.",
+	inputSchema: z.object({
+		query: z
+			.string()
+			.trim()
+			.min(1)
+			.max(5000)
+			.describe(
+				'Dataview Query Language source, e.g. TABLE file.mtime FROM "Projects" SORT file.mtime DESC',
+			),
+		max_output_chars: z
+			.number()
+			.int()
+			.min(1000)
+			.max(12000)
+			.optional()
+			.default(8000)
+			.describe("Maximum characters returned (default 8000, max 12000)."),
+	}),
+});
+
 export const createFolderTool = t({
 	description:
 		"Create a new folder in the Obsidian vault. " +
@@ -694,6 +719,7 @@ export const noteTools = {
 	list_notes: listNotesTool,
 	count_notes: countNotesTool,
 	get_note_metadata: getNoteMetadataTool,
+	query_dataview: queryDataviewTool,
 	create_folder: createFolderTool,
 	move_note: moveNoteTool,
 	delete_note: deleteNoteTool,

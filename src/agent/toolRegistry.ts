@@ -48,6 +48,7 @@ export interface ToolDisplayDescriptor {
 export interface ToolResolutionContext {
 	enableMemoryAuditTool?: boolean;
 	developerMode?: boolean;
+	dataviewAvailable?: boolean;
 }
 
 export interface ToolDefinition {
@@ -124,6 +125,7 @@ const BUILTIN_RISKS: Record<string, HostToolRisk> = {
 	cull_core: "local-write",
 	search_past_sessions: "read",
 	read_tool_result: "read",
+	query_dataview: "read",
 	update_setting: "local-write",
 };
 
@@ -178,6 +180,12 @@ function updateSettingAvailability(
 	context: ToolResolutionContext,
 ): ToolAvailability {
 	return context.developerMode ? "available" : "disabled";
+}
+
+function dataviewAvailability(
+	context: ToolResolutionContext,
+): ToolAvailability {
+	return context.dataviewAvailable ? "available" : "disabled";
 }
 
 function formatValidationIssue(issue: unknown): string {
@@ -395,7 +403,9 @@ export function createBuiltInToolDefinitions(
 					? memoryAuditAvailability
 					: id === "update_setting"
 						? updateSettingAvailability
-						: () => "available",
+						: id === "query_dataview"
+							? dataviewAvailability
+							: () => "available",
 		};
 	});
 }
