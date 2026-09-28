@@ -1,5 +1,17 @@
 # Active Context
 
+### 2026-09-28 — Chat draft isolation and approval cancellation
+
+- The composer remounts per session and stores unsent text on that session, so
+  switching chats cannot submit one chat's text in another. Draft text and
+  attachments now restore after restart; JSONL attachment payloads use a
+  separate per-session file.
+- Stop now aborts the turn, rejects and clears a pending tool approval, and
+  both native and OpenResponses loops stop before starting further calls or a
+  continuation.
+- TypeScript, Prettier, and `git diff --check` passed. Tests, production build,
+  and live Obsidian/mobile behavior were not run.
+
 ### 2026-09-27 — Optional Dataview DQL tool
 
 - Added read-only `query_dataview`, exposed only when Dataview's public query

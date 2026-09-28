@@ -15,6 +15,14 @@ interface UseChatSessionOptions {
 	profileId?: string;
 }
 
+function hasDraftState(session: ChatSession): boolean {
+	return Boolean(session.draft?.trim() || session.draftAttachments?.length);
+}
+
+function shouldPersistSession(session: ChatSession): boolean {
+	return sessionMessageCount(session) > 0 || hasDraftState(session);
+}
+
 export interface UseChatSessionResult {
 	sessions: ChatSession[];
 	setSessions: React.Dispatch<React.SetStateAction<ChatSession[]>>;
@@ -25,7 +33,7 @@ export interface UseChatSessionResult {
 	activeSessionIdRef: React.MutableRefObject<string | null>;
 	openSessionIds: string[];
 	setOpenSessionIds: React.Dispatch<React.SetStateAction<string[]>>;
-	/** Create and activate a new draft session. Drafts persist after their first message. */
+	/** Create and activate a new session for chat and composer drafts. */
 	createNewSession: (opts?: {
 		includeActiveNote?: boolean;
 		selectedProfileIds?: string[];
@@ -111,9 +119,8 @@ export function useChatSession({
 				.loadChatData()
 				.then((data) => {
 					if (cancelled) return;
-					const savedSessions = data.sessions.filter(
-						(session) => sessionMessageCount(session) > 0,
-					);
+					const savedSessions =
+						data.sessions.filter(shouldPersistSession);
 					const currentActiveId = activeSessionIdRef.current;
 					const nextActiveId = savedSessions.some(
 						(session) => session.id === currentActiveId,
@@ -192,8 +199,9 @@ export function useChatSession({
 			);
 			const savedSessions = data.sessions.filter(
 				// messageCount comes from the index, so this stays correct even
-				// when messages haven't been hydrated yet (index-only boot).
-				(session) => sessionMessageCount(session) > 0,
+				// when messages haven't been hydrated yet (index-only boot). Draft
+				// sessions are restored when they contain composer content.
+				shouldPersistSession,
 			);
 			if (savedSessions.length > 0) {
 				// Preserve the loaded storage untouched unless this also removes legacy
@@ -328,7 +336,7 @@ export function useChatSession({
 				const persistedSessions = sessions.filter(
 					// messageCount keeps unhydrated sessions in the payload; the
 					// storage layer's guard skips writing their (empty) messages.
-					(session) => sessionMessageCount(session) > 0,
+					shouldPersistSession,
 				);
 				const persistedActiveSessionId = persistedSessions.some(
 					(session) => session.id === activeSessionId,

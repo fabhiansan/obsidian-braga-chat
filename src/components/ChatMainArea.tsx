@@ -163,6 +163,7 @@ const ChatMainArea: React.FC<ChatMainAreaProps> = ({
 				/>
 			)}
 			<ChatInput
+				key={sessionId ?? "new-chat"}
 				app={app}
 				plugin={plugin}
 				onSend={onSend}

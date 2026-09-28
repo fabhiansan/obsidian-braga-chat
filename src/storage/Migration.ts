@@ -60,31 +60,48 @@ export class ChatStorageMigration {
 			}
 
 			let totalMessages = 0;
-			const indexEntries = chatData.sessions.map((session) => {
-				const filePath = `sessions/${session.id}.jsonl`;
-				const fullPath = `${pluginDir}/${filePath}`;
-				const content = session.messages
-					.map((m) => JSON.stringify(m))
-					.join("\n");
+			const indexEntries = await Promise.all(
+				chatData.sessions.map(async (session) => {
+					const filePath = `sessions/${session.id}.jsonl`;
+					const fullPath = `${pluginDir}/${filePath}`;
+					const content = session.messages
+						.map((m) => JSON.stringify(m))
+						.join("\n");
 
-				adapter.write(fullPath, content ? content + "\n" : "");
-				totalMessages += session.messages.length;
+					await adapter.write(
+						fullPath,
+						content ? content + "\n" : "",
+					);
+					totalMessages += session.messages.length;
+					const draftAttachmentsFile = session.draftAttachments
+						?.length
+						? `sessions/${session.id}.draft.json`
+						: undefined;
+					if (draftAttachmentsFile) {
+						await adapter.write(
+							`${pluginDir}/${draftAttachmentsFile}`,
+							JSON.stringify(session.draftAttachments),
+						);
+					}
 
-				return {
-					id: session.id,
-					title: session.title,
-					createdAt: session.createdAt,
-					updatedAt: session.updatedAt,
-					messageCount: session.messages.length,
-					filePath,
-					profileId: session.profileId,
-					isGroupChat: session.isGroupChat,
-					participants: session.participants,
-					selectedProfileIds: session.selectedProfileIds,
-					thinkingEnabled: session.thinkingEnabled,
-					contextItems: session.contextItems,
-				};
-			});
+					return {
+						id: session.id,
+						title: session.title,
+						createdAt: session.createdAt,
+						updatedAt: session.updatedAt,
+						messageCount: session.messages.length,
+						filePath,
+						profileId: session.profileId,
+						isGroupChat: session.isGroupChat,
+						participants: session.participants,
+						selectedProfileIds: session.selectedProfileIds,
+						thinkingEnabled: session.thinkingEnabled,
+						draft: session.draft,
+						draftAttachmentsFile,
+						contextItems: session.contextItems,
+					};
+				}),
+			);
 
 			// 4. Write index.json
 			const index = {

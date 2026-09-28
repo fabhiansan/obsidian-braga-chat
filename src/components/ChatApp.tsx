@@ -156,9 +156,41 @@ const ChatApp: React.FC<ChatAppProps> = ({
 
 	const ui = useChatUI();
 	const { connectedUsers, setConnectedUsers } = ui;
+	const previousActiveSessionIdRef = useRef(activeSessionId);
 	useEffect(() => {
+		const previousSessionId = previousActiveSessionIdRef.current;
+		previousActiveSessionIdRef.current = activeSessionId;
 		ui.clearMessageSelection();
-	}, [activeSessionId]);
+		if (
+			!previousSessionId ||
+			previousSessionId === activeSessionId ||
+			!ui.isEditing ||
+			ui.originalMessages.length === 0
+		) {
+			return;
+		}
+
+		const originalMessages = ui.originalMessages;
+		setSessions((current) =>
+			current.map((session) =>
+				session.id === previousSessionId
+					? { ...session, messages: originalMessages }
+					: session,
+			),
+		);
+		ui.setIsEditing(false);
+		ui.setOriginalMessages([]);
+		ui.setEditMessageText("");
+	}, [
+		activeSessionId,
+		setSessions,
+		ui.clearMessageSelection,
+		ui.isEditing,
+		ui.originalMessages,
+		ui.setEditMessageText,
+		ui.setIsEditing,
+		ui.setOriginalMessages,
+	]);
 	const suppressProfilePersistenceRef = useRef(false);
 	const scrollSaveTimersRef = useRef<Map<string, number>>(new Map());
 	const getSelectedProfileIds = useCallback(
@@ -1161,8 +1193,7 @@ const ChatApp: React.FC<ChatAppProps> = ({
 						// Show just that to avoid double-counting history.
 						const displayTotal = showFullRequest
 							? activeRuntime.runningTokenTotal
-							: sessionTotal +
-								activeRuntime.runningTokenTotal;
+							: sessionTotal + activeRuntime.runningTokenTotal;
 						return `~${displayTotal.toLocaleString()} tokens`;
 					}
 					if (sessionTotal > 0) {
@@ -1170,9 +1201,9 @@ const ChatApp: React.FC<ChatAppProps> = ({
 					}
 					return undefined;
 				})()}
-				draft={undefined}
-				onDraftChange={undefined}
-				editMessage={ui.editMessageText}
+				draft={activeSession?.draft}
+				onDraftChange={handleDraftChange}
+				editMessage={ui.isEditing ? ui.editMessageText : undefined}
 				selectionMode={ui.selectionMode}
 				selectedMessageIds={ui.selectedMessageIds}
 				onLongPress={ui.enterSelectionMode}

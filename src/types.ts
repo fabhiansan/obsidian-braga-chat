@@ -185,9 +185,9 @@ export interface ChatSession {
 	selectedRemoteUserIds?: string[];
 	/** Whether thinking/reasoning is enabled for this session */
 	thinkingEnabled?: boolean;
-	/** Unsent composer text saved for recovery across restarts and tab switches */
+	/** Unsent composer text saved for recovery across restarts and tab switches. */
 	draft?: string;
-	/** Unsent composer attachments scoped to this chat session. */
+	/** Unsent composer attachments scoped to this chat and saved separately. */
 	draftAttachments?: Attachment[];
 	/** Whether this session is connected to a relay server for multi-user sync */
 	relayEnabled?: boolean;
@@ -200,7 +200,7 @@ export interface ChatSession {
 export interface StoredChatData {
 	sessions: ChatSession[];
 	activeSessionId: string | null;
-	/** Ordered internal tabs to restore. Drafts are deliberately excluded. */
+	/** Ordered internal tabs to restore when tab restoration is enabled. */
 	openSessionIds?: string[];
 	/** Session IDs intentionally deleted by the user or remote sync. Omitted
 		IDs are otherwise preserved so a stale partial UI snapshot cannot truncate

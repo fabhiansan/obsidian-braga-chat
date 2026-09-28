@@ -104,9 +104,11 @@ When Enter is configured for a new line, Shift+Enter and Cmd/Ctrl+Enter still se
 - `src/api.ts` — `SdkMessage`, `MessageContentPart` multimodal types
 - `src/types.ts` — `Attachment` interface
 
-Unsent attachments are session-scoped while the chat view is open. Empty draft
-sessions are still excluded from saved chat data until the first message is
-sent.
+Unsent composer text and attachments belong to their session and are saved
+locally before the first message is sent. JSONL storage keeps attachment draft
+payloads in a separate per-session file so inline image data does not inflate
+the session index. Clearing a draft removes the empty draft-only session on the
+next autosave.
 
 ### Group-chat full replay (T19a, 2026-08-14)
 

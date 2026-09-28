@@ -5,6 +5,7 @@ import type {
 	ChatMessage,
 	ContextItem,
 	CompactionMetadata,
+	Attachment,
 } from "../types";
 import type { ObsidianAISettings } from "../settings";
 
@@ -132,6 +133,8 @@ interface SessionIndexEntry {
 	selectedProfileIds?: string[];
 	modelOverrides?: Record<string, string>;
 	thinkingEnabled?: boolean;
+	draft?: string;
+	draftAttachmentsFile?: string;
 	contextItems?: ContextItem[];
 	scrollPosition?: number;
 	compactionMetadata?: CompactionMetadata;
@@ -161,6 +164,8 @@ class JsonlStorage implements ChatStorage {
 		never write these (messages in memory are []) — only hydrateSession()
 		(or a save carrying real messages, e.g. a sync download) clears them. */
 	private unhydratedSessions = new Map<string, SessionIndexEntry>();
+	/** Avoid rewriting potentially large inline file data on each text autosave. */
+	private savedDraftAttachmentRefs = new Map<string, Attachment[]>();
 	/** In-flight hydrateSession calls — concurrent callers share one read. */
 	private pendingHydrations = new Map<string, Promise<ChatMessage[]>>();
 	/** Sessions known to have their messages in UI memory (hydrated via
@@ -247,6 +252,29 @@ class JsonlStorage implements ChatStorage {
 						this.unhydratedSessions.set(entry.id, entry);
 					}
 				}
+				let draftAttachments: ChatSession["draftAttachments"];
+				if (entry.draftAttachmentsFile) {
+					try {
+						const draftPath = `${pluginDir}/${entry.draftAttachmentsFile}`;
+						if (await adapter.exists(draftPath)) {
+							const parsed = JSON.parse(
+								await adapter.read(draftPath),
+							);
+							if (Array.isArray(parsed)) {
+								draftAttachments = parsed as Attachment[];
+								this.savedDraftAttachmentRefs.set(
+									entry.id,
+									draftAttachments,
+								);
+							}
+						}
+					} catch (error) {
+						this.deps.logger?.log(
+							"warn",
+							`JsonlStorage: could not read attachment draft for ${entry.id}: ${String(error)}`,
+						);
+					}
+				}
 				return {
 					id: entry.id,
 					title: entry.title,
@@ -266,6 +294,8 @@ class JsonlStorage implements ChatStorage {
 					selectedProfileIds: entry.selectedProfileIds,
 					modelOverrides: entry.modelOverrides,
 					thinkingEnabled: entry.thinkingEnabled,
+					draft: entry.draft,
+					draftAttachments,
 					scrollPosition: entry.scrollPosition,
 					compactionMetadata: entry.compactionMetadata,
 				};
@@ -426,6 +456,36 @@ class JsonlStorage implements ChatStorage {
 		for (const session of data.sessions) {
 			const filePath = `${SESSIONS_DIR}/${session.id}.jsonl`;
 			const fullPath = `${pluginDir}/${filePath}`;
+			const draftAttachmentsFile = session.draftAttachments?.length
+				? `${SESSIONS_DIR}/${session.id}.draft.json`
+				: undefined;
+			const oldDraftFile = this.indexEntriesById.get(
+				session.id,
+			)?.draftAttachmentsFile;
+			if (draftAttachmentsFile) {
+				if (
+					this.savedDraftAttachmentRefs.get(session.id) !==
+					session.draftAttachments
+				) {
+					await adapter.write(
+						`${pluginDir}/${draftAttachmentsFile}`,
+						JSON.stringify(session.draftAttachments),
+					);
+					this.savedDraftAttachmentRefs.set(
+						session.id,
+						session.draftAttachments!,
+					);
+				}
+			} else {
+				if (
+					oldDraftFile &&
+					adapter.remove &&
+					(await adapter.exists(`${pluginDir}/${oldDraftFile}`))
+				) {
+					await adapter.remove(`${pluginDir}/${oldDraftFile}`);
+				}
+				this.savedDraftAttachmentRefs.delete(session.id);
+			}
 
 			const originalEntry =
 				this.unhydratedSessions.get(session.id) ??
@@ -448,6 +508,8 @@ class JsonlStorage implements ChatStorage {
 				indexEntries.push({
 					...preservedEntry,
 					title: session.title,
+					draft: session.draft,
+					draftAttachmentsFile,
 					scrollPosition: session.scrollPosition,
 				});
 				this.deps.logger?.log(
@@ -483,6 +545,8 @@ class JsonlStorage implements ChatStorage {
 				selectedProfileIds: session.selectedProfileIds,
 				modelOverrides: session.modelOverrides,
 				thinkingEnabled: session.thinkingEnabled,
+				draft: session.draft,
+				draftAttachmentsFile,
 				scrollPosition: session.scrollPosition,
 				contextItems: session.contextItems,
 				compactionMetadata: session.compactionMetadata,
@@ -493,7 +557,40 @@ class JsonlStorage implements ChatStorage {
 		// sessions. Absence from that snapshot is not deletion. Carry forward all
 		// existing index entries unless the caller explicitly marks the ID deleted.
 		for (const [id, entry] of this.indexEntriesById) {
+			if (deletedIds.has(id)) {
+				if (
+					entry.draftAttachmentsFile &&
+					adapter.remove &&
+					(await adapter.exists(
+						`${pluginDir}/${entry.draftAttachmentsFile}`,
+					))
+				) {
+					await adapter.remove(
+						`${pluginDir}/${entry.draftAttachmentsFile}`,
+					);
+				}
+				this.savedDraftAttachmentRefs.delete(id);
+				continue;
+			}
 			if (!incomingIds.has(id) && !deletedIds.has(id)) {
+				// Draft-only sessions are included in the input while they contain
+				// composer data. Drop their index entry and attachment payload after
+				// the draft is cleared; empty message sessions are not history.
+				if (entry.messageCount === 0) {
+					if (
+						entry.draftAttachmentsFile &&
+						adapter.remove &&
+						(await adapter.exists(
+							`${pluginDir}/${entry.draftAttachmentsFile}`,
+						))
+					) {
+						await adapter.remove(
+							`${pluginDir}/${entry.draftAttachmentsFile}`,
+						);
+					}
+					this.savedDraftAttachmentRefs.delete(id);
+					continue;
+				}
 				indexEntries.push(entry);
 				this.deps.logger?.log(
 					"warn",

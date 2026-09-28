@@ -180,6 +180,7 @@ export class OpenResponsesLoop {
 			}> = [];
 
 			for (const [call_id, fc] of this.pendingFunctionCalls) {
+				if (signal?.aborted) break;
 				let args: Record<string, unknown>;
 				let argumentError: string | undefined;
 				try {
@@ -213,6 +214,7 @@ export class OpenResponsesLoop {
 					result = await this.toolExecutor.execute(toolCall, signal);
 				} else {
 					const approved = await this.requestApproval?.(toolCall);
+					if (signal?.aborted) break;
 					if (approved) {
 						result = approved;
 					} else {
@@ -238,6 +240,7 @@ export class OpenResponsesLoop {
 					result,
 				});
 			}
+			if (signal?.aborted) break;
 
 			// The full results remain available through onToolResult and the
 			// persisted transcript. Share the continuation allowance across all

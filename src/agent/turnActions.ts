@@ -24,7 +24,16 @@ export class TurnActionController {
 			"info",
 			`[Chat] stopped — session ${currentActiveId?.slice(0, 8)}`,
 		);
-		deps.getRuntime(currentActiveId).controller?.abort();
+		const runtime = deps.getRuntime(currentActiveId);
+		runtime.controller?.abort();
+		// Approval waits on this resolver rather than an abortable request. Reject
+		// it so Stop can finish the turn and a later click cannot run the tool.
+		runtime.resolveTool?.(null);
+		deps.patchRuntime(currentActiveId, {
+			pendingToolCall: null,
+			pendingToolDisplay: null,
+			resolveTool: null,
+		});
 	};
 
 	retry = (messageId: string): void => {
@@ -172,7 +181,10 @@ export class TurnActionController {
 				undefined,
 				deps.plugin.logger,
 			);
-		const result = await toolExecutor.execute(pendingToolCall);
+		const result = await toolExecutor.execute(
+			pendingToolCall,
+			runtime.controller?.signal,
+		);
 		runtime.resolveTool?.(result);
 		deps.patchRuntime(currentActiveId, { resolveTool: null });
 	};

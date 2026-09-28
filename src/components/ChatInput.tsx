@@ -42,7 +42,7 @@ interface ChatInputProps {
 	tokenTotal?: string;
 	/** Optional draft text to restore on mount */
 	draft?: string;
-	/** Called when the composer text changes (debounced by parent) */
+	/** Called whenever the composer text changes. */
 	onDraftChange?: (text: string) => void;
 	/** Called when user is typing (for relay sync) */
 	onTyping?: () => void;
@@ -145,7 +145,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 	onDraftChange,
 	onTyping,
 }) => {
-	const [value, setValue] = useState("");
+	const [value, setValue] = useState(draft ?? "");
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const [auto, setAuto] = useState<AutoState | null>(null);
 	const [showAttachDropdown, setShowAttachDropdown] = useState(false);
@@ -282,10 +282,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
 		if (editMessage !== undefined) {
 			setValue(editMessage);
 			setTimeout(() => textareaRef.current?.focus(), 50);
+		} else {
+			setValue(draft ?? "");
 		}
-		// Draft feature disabled — was causing mobile input erasure
-		// See: T82 regression fix, 2026-08-03
-	}, [editMessage]);
+	}, [draft, editMessage]);
 
 	const allCandidates = useMemo(() => {
 		if (!auto) return [];
@@ -413,8 +413,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 			const text = e.target.value;
 			const cursorPos = e.target.selectionStart;
 			setValue(text);
-			// Draft auto-save disabled — was causing mobile input erasure
-			// onDraftChange?.(text);
+			onDraftChange?.(text);
 
 			const detected = detectAutocomplete(text, cursorPos);
 			if (detected) {
@@ -444,7 +443,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
 				const after = value.slice(
 					textareaRef.current?.selectionStart ?? value.length,
 				);
-				setValue(before + candidate.label + after);
+				const newValue = before + candidate.label + after;
+				setValue(newValue);
+				onDraftChange?.(newValue);
 				setAuto(null);
 
 				let item: ContextItem;
@@ -482,6 +483,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 				);
 				const newValue = before + replacement + after;
 				setValue(newValue);
+				onDraftChange?.(newValue);
 				setAuto(null);
 				setTimeout(() => {
 					textareaRef.current?.focus();
@@ -499,6 +501,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 				);
 				const newValue = before + replacement + after;
 				setValue(newValue);
+				onDraftChange?.(newValue);
 				setAuto(null);
 				setTimeout(() => {
 					textareaRef.current?.focus();
@@ -508,7 +511,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 				return;
 			}
 		},
-		[auto, value, onAddMention],
+		[auto, value, onAddMention, onDraftChange],
 	);
 
 	const handleKeyDown = useCallback(

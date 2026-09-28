@@ -413,6 +413,7 @@ export class AgentLoop {
 			let toolCallTokens = 0;
 			let resultTokens = 0;
 			for (const pendingCall of pendingCalls) {
+				if (signal.aborted) break;
 				console.log(
 					`[AgentLoop] step ${step} tool-call: ${pendingCall.toolName}`,
 					pendingCall.args,
@@ -435,12 +436,20 @@ export class AgentLoop {
 						error: "User rejected the tool call",
 					};
 				}
+				if (signal.aborted) break;
 
 				console.log(
 					`[AgentLoop] step ${step} tool-result:`,
 					result.error ?? "success",
 				);
 				toolResults.push({ call: pendingCall, result });
+			}
+
+			// Stop may resolve a pending approval while aborting the turn. Do not
+			// construct a continuation or execute additional calls in this step.
+			if (signal.aborted) {
+				this.opts.onTokenUpdate?.(runningTotal);
+				break;
 			}
 
 			// Build assistant message (text + tool call only — reasoning is NOT included
