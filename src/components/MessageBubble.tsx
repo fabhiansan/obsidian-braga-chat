@@ -107,12 +107,15 @@ function setupLinkInterception(container: HTMLElement, app: App): void {
 		const newLink = link.cloneNode(true) as HTMLElement;
 		link.parentNode?.replaceChild(newLink, link);
 
-		newLink.addEventListener("click", (e: Event) => {
+		newLink.addEventListener("click", async (e: Event) => {
 			e.preventDefault();
 			e.stopPropagation();
 
 			const anchor = e.currentTarget as HTMLAnchorElement;
-			const href = anchor.getAttribute("href") || "";
+			const href =
+				anchor.getAttribute("data-href") ||
+				anchor.getAttribute("href") ||
+				"";
 			if (href.startsWith("obsidian-ai://open-session")) {
 				const url = new URL(href);
 				const sessionId = url.searchParams.get("sessionId");
@@ -138,7 +141,7 @@ function setupLinkInterception(container: HTMLElement, app: App): void {
 					const cleanHref = href
 						.replace(/^\[\[/, "")
 						.replace(/\]\]$/, "");
-					app.workspace.openLinkText(cleanHref, "", false);
+					await app.workspace.openLinkText(cleanHref, "", false);
 				} catch (err) {
 					console.error(
 						"[obsidian-ai] Failed to open internal link:",
@@ -169,7 +172,7 @@ function setupLinkInterception(container: HTMLElement, app: App): void {
 
 			// Fallback — treat as internal link
 			try {
-				app.workspace.openLinkText(href, "", false);
+				await app.workspace.openLinkText(href, "", false);
 			} catch (err) {
 				console.error("[obsidian-ai] Failed to open link:", err);
 			}
