@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import MessageBubble from "./MessageBubble";
 import ToolCallNotification from "./presentational/ToolCallNotification";
 import { sanitizeHtmlForRenderer } from "../lib/sanitizeHtml";
+import { makeMarkdownTablesScrollable } from "./scrollableMarkdownTables";
 
 const StreamingBubble: React.FC<{
 	content: string;
@@ -90,11 +91,15 @@ const StreamingBubble: React.FC<{
 						const textDiv = contentRef.current.createDiv({
 							cls: "chat-bubble-text",
 						});
-						renderMarkdown(
+						void renderMarkdown(
 							sanitizeHtmlForRenderer(part.content),
 							textDiv,
 							"",
-						);
+						).then(() => {
+							if (!unmounted) {
+								makeMarkdownTablesScrollable(textDiv);
+							}
+						});
 					} else if (part.type === "tool_call") {
 						const toolDiv = contentRef.current.createDiv({
 							cls: "chat-bubble-tool",
@@ -154,11 +159,15 @@ const StreamingBubble: React.FC<{
 					} else {
 						remainDiv.empty();
 					}
-					renderMarkdown(
+					void renderMarkdown(
 						sanitizeHtmlForRenderer(remainingText),
 						remainDiv,
 						"",
-					);
+					).then(() => {
+						if (!unmounted) {
+							makeMarkdownTablesScrollable(remainDiv!);
+						}
+					});
 				} else {
 					const remainDiv = contentRef.current.querySelector(
 						".chat-bubble-remain",
@@ -177,6 +186,11 @@ const StreamingBubble: React.FC<{
 					)
 						.then(() => {
 							if (unmounted) return;
+							if (contentRef.current) {
+								makeMarkdownTablesScrollable(
+									contentRef.current,
+								);
+							}
 						})
 						.catch((err: any) => {
 							if (unmounted) return;

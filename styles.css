@@ -1104,12 +1104,14 @@
 .chat-messages {
 	flex: 1;
 	overflow-y: auto;
+	overflow-x: hidden;
 	min-height: 0;
 	padding: 12px 8px;
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	touch-action: pan-y;
+	/* Permit sideways swipes to reach nested table scrollers. */
+	touch-action: pan-x pan-y;
 	overscroll-behavior-y: contain;
 	-webkit-overflow-scrolling: touch;
 }
@@ -1175,6 +1177,8 @@
 /* Bubbles */
 .chat-bubble {
 	max-width: 90%;
+	min-width: 0;
+	box-sizing: border-box;
 	padding: 8px 10px;
 	border-radius: 8px;
 	font-size: var(--font-ui-small);
@@ -1233,12 +1237,16 @@
 .chat-bubble-content-inline {
 	display: flex;
 	flex-direction: column;
+	min-width: 0;
+	max-width: 100%;
 	gap: 4px;
 	user-select: text;
 }
 
 .chat-bubble-content-segment {
 	/* Inherits from .chat-bubble-content */
+	min-width: 0;
+	max-width: 100%;
 	user-select: text;
 }
 
@@ -1262,8 +1270,32 @@
 
 /* Content container for markdown-rendered output */
 .chat-bubble-content {
+	box-sizing: border-box;
+	min-width: 0;
 	max-width: 100%;
 	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	-webkit-overflow-scrolling: touch;
+}
+
+.chat-markdown-table-scroll {
+	box-sizing: border-box;
+	min-width: 0;
+	max-width: 100%;
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	-webkit-overflow-scrolling: touch;
+	touch-action: pan-x pan-y;
+	scrollbar-width: thin;
+}
+
+.chat-markdown-table-scroll:focus-visible {
+	outline: 2px solid var(--interactive-accent);
+	outline-offset: 2px;
+}
+
+.chat-markdown-table-scroll > table {
+	max-width: none;
 }
 
 .chat-bubble-content pre {

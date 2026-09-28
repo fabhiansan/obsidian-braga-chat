@@ -4,6 +4,7 @@ import { ChatMessage, ContextItem, ContentPart, Attachment } from "../types";
 import MessageActions from "./presentational/MessageActions";
 import ToolCallNotification from "./presentational/ToolCallNotification";
 import { sanitizeHtmlForRenderer } from "../lib/sanitizeHtml";
+import { makeMarkdownTablesScrollable } from "./scrollableMarkdownTables";
 import {
 	formatMessageTimestamp,
 	formatMessageTimestampTitle,
@@ -278,6 +279,7 @@ function TextSegment({
 			})
 			.then(() => {
 				if (!unmounted && ref.current) {
+					makeMarkdownTablesScrollable(ref.current);
 					if (contextItems) {
 						highlightMentions(ref.current, contextItems);
 					}
@@ -687,6 +689,7 @@ function LegacyContent({
 				})
 				.then(() => {
 					if (!unmounted && contentRef.current) {
+						makeMarkdownTablesScrollable(contentRef.current);
 						if (contextItems) {
 							highlightMentions(contentRef.current, contextItems);
 						}
