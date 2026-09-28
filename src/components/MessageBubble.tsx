@@ -106,17 +106,44 @@ function setupLinkInterception(container: HTMLElement, app: App): void {
 		// Remove any existing listener to avoid duplicates
 		const newLink = link.cloneNode(true) as HTMLElement;
 		link.parentNode?.replaceChild(newLink, link);
+		newLink.addEventListener("pointerenter", () => {
+			const anchor = newLink as HTMLAnchorElement;
+			const target =
+				anchor.getAttribute("data-href") ||
+				anchor.getAttribute("href") ||
+				"";
+			(window as any).__obsidianAiLogger?.log?.(
+				"debug",
+				"[ChatLinks] pointerenter",
+				JSON.stringify({ target, className: anchor.className }),
+			);
+		});
 
 		newLink.addEventListener("click", async (e: Event) => {
 			e.preventDefault();
 			e.stopPropagation();
 
 			const anchor = e.currentTarget as HTMLAnchorElement;
-			const href =
-				anchor.getAttribute("data-href") ||
-				anchor.getAttribute("href") ||
-				"";
+			const rawHref = anchor.getAttribute("href") || "";
+			const dataHref = anchor.getAttribute("data-href") || "";
+			const href = dataHref || rawHref;
+			const logger = (window as any).__obsidianAiLogger;
+			logger?.log?.(
+				"debug",
+				"[ChatLinks] click",
+				JSON.stringify({
+					href,
+					rawHref,
+					dataHref,
+					className: anchor.className,
+					connected: anchor.isConnected,
+				}),
+			);
 			if (href.startsWith("obsidian-ai://open-session")) {
+				logger?.log?.(
+					"debug",
+					"[ChatLinks] dispatching chat session link",
+				);
 				const url = new URL(href);
 				const sessionId = url.searchParams.get("sessionId");
 				const messageId = url.searchParams.get("messageId");
@@ -141,8 +168,28 @@ function setupLinkInterception(container: HTMLElement, app: App): void {
 					const cleanHref = href
 						.replace(/^\[\[/, "")
 						.replace(/\]\]$/, "");
+					logger?.log?.(
+						"debug",
+						"[ChatLinks] openLinkText start",
+						JSON.stringify({
+							target: cleanHref,
+							sourcePath: "",
+							newLeaf: false,
+						}),
+					);
 					await app.workspace.openLinkText(cleanHref, "", false);
+					logger?.log?.(
+						"debug",
+						"[ChatLinks] openLinkText resolved",
+						JSON.stringify({ target: cleanHref }),
+					);
 				} catch (err) {
+					logger?.log?.(
+						"error",
+						"[ChatLinks] openLinkText rejected",
+						JSON.stringify({ target: href }),
+						err,
+					);
 					console.error(
 						"[obsidian-ai] Failed to open internal link:",
 						err,
@@ -172,8 +219,28 @@ function setupLinkInterception(container: HTMLElement, app: App): void {
 
 			// Fallback — treat as internal link
 			try {
+				logger?.log?.(
+					"debug",
+					"[ChatLinks] openLinkText fallback start",
+					JSON.stringify({
+						target: href,
+						sourcePath: "",
+						newLeaf: false,
+					}),
+				);
 				await app.workspace.openLinkText(href, "", false);
+				logger?.log?.(
+					"debug",
+					"[ChatLinks] openLinkText fallback resolved",
+					JSON.stringify({ target: href }),
+				);
 			} catch (err) {
+				logger?.log?.(
+					"error",
+					"[ChatLinks] openLinkText fallback rejected",
+					JSON.stringify({ target: href }),
+					err,
+				);
 				console.error("[obsidian-ai] Failed to open link:", err);
 			}
 		});
