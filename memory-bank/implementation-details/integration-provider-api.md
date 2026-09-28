@@ -1,7 +1,7 @@
 # Integration Provider API
 
 *Created: 2026-08-05 17:28:52 IST*
-*Last Updated: 2026-08-05 17:48:15 IST*
+*Last Updated: 2026-09-28 12:35:16 IST*
 *Task: [T39](../tasks/T39.md)*
 
 ## Purpose
@@ -29,6 +29,11 @@ plugins into the chat subsystem.
 The host must remain able to use its built-in note tools without the provider
 API. A provider is optional: absence, disablement, unload, and version
 incompatibility are normal availability states rather than chat failures.
+
+**Dataview note (2026-09-28):** The built-in `query_dataview` DQL tool is
+available through Dataview's public query API, but it is not a T39 provider
+and does not complete the future Dataview provider integration described here.
+DataviewJS execution is not part of that built-in tool.
 
 ## Scope Boundary: Data Sync
 
@@ -284,7 +289,8 @@ sidebar and configuration experience.
    then explicit-stage/commit plans, then individually confirmed pull/push.
 4. **Additional providers:** Migrate T26's planned Tasks, Dataview, and
    Templater bridges onto the proven provider contract rather than adding
-   direct private-plugin calls.
+   direct private-plugin calls. The existing built-in DQL query tool is a
+   separate capability and does not satisfy the Dataview provider migration.
 5. **Consolidation decision:** Reassess a one-codebase Git/AI distribution only
    after real usage measures the cost of two installs and coordinated releases.
 

@@ -1,7 +1,7 @@
 # Memory Bank - Sage Workspace
 
 *Created: 2026-08-07 23:23:17 IST*
-*Last Updated: 2026-09-26 12:34:55 IST*
+*Last Updated: 2026-09-28 12:35:16 IST*
 
 ## Overview
 
@@ -18,6 +18,8 @@ This is the Memory Bank for the Sage (灵剑) OpenClaw workspace.
 | T16 | Group Chat (Multi-Agent Conversation) | 🔄 | HIGH | 2026-05-16 | T15 | [Details](tasks/T16.md) |
 | T16a | Bounded Group Context and Shared Tool Facts | 🔄 | HIGH | 2026-08-31 | T16, T46, T48b, T48c | [Details](tasks/T16a.md) |
 | T16b | Addressable Agent Participants and Unified `@` Resolution | 🔄 | HIGH | 2026-08-31 | T16, T43 | [Details](tasks/T16b.md) |
+| T17 | Advanced Vault Tools — Backlinks, YAML, Bulk Ops, Templating, Maintenance | ⏸️ | HIGH | 2026-05-15 | T13, T14, T60a, T60c | [Details](tasks/T17.md) |
+| T17a | Optional Dataview DQL Query Tool | 🔄 | MEDIUM | 2026-09-27 | T17, T13, T14, T60a, T60c | [Details](tasks/T17a.md) |
 | T38 | Tool Approval Policy Framework | ❌ | — | 2026-08-05 | — | [Details](tasks/T38.md) |
 | T39 | Git Integration Provider (obsidian-git → obsidian-ai) | ✅ | HIGH | 2026-08-05 | 2026-09-18 | T39a, T39b | [Details](tasks/T39.md) |
 | T39a | Provider API Host, Lifecycle, and Tool-Policy Boundary | ✅ | HIGH | 2026-08-05 | 2026-09-18 | T39, T13, T38 | [Details](tasks/T39a.md) |
@@ -151,6 +153,10 @@ T16: Group Chat (Multi-Agent Conversation)
   └── T15
   └── T16a
   └── T16b
+T17: Advanced Vault Tools — Backlinks, YAML, Bulk Ops, Templating, Maintenance
+  └── T17a
+T17a: Optional Dataview DQL Query Tool
+  └── T17
 T18: Web Search Tool for Chat
   └── T13
   └── T9
@@ -305,8 +311,8 @@ T70: Active Chat Model Identity and Switcher Consistency
 
 ## Status Summary
 
-- **Active**: 37
+- **Active**: 38
 - **Completed**: 46
-- **Paused**: 2
+- **Paused**: 3
 - **Disabled**: 1
-- **Total**: 86
+- **Total**: 88

@@ -1,5 +1,25 @@
 # Session Cache
 
+## 2026-09-28 — T17a Dataview DQL and chat draft/tool-cancellation fixes
+
+- Added Memory Bank subtask T17a under T17 for the implemented read-only
+  `query_dataview` DQL capability. DataviewJS is not executed. The separate
+  Dataview provider under T39 remains future work.
+- Chat UI fixes keep unsent text and attachments with each chat, contain long
+  filenames in attachment chips, and persist drafts across restart. JSONL
+  attachment payloads use a separate per-session file; migration preserves
+  draft state.
+- Stop now rejects pending tool approval and prevents both native and
+  OpenResponses loops from starting more calls or a continuation.
+- Production build passed on 2026-09-28. Tests and live Obsidian/mobile
+  acceptance were not run. Dataview-installed runtime acceptance remains open.
+- Source commits: `274d2d6`, `2a0d175`, and `00bd848`. Working branch was clean
+  and current at `00bd848` before this Memory Bank update.
+- No local Beads database is initialized; T17a is recorded in the existing
+  Memory Bank task hierarchy without inventing a Beads issue ID.
+- See `sessions/2026-09-28-chat-ui-dataview-tooling.md` and the T17a/T31/T24/
+  T60c task records.
+
 ## 2026-09-26 — T69a desktop/mobile Codex auth and T14 OpenClaw pairing
 
 - Confirmed product direction: desktop local Codex auth must work without the

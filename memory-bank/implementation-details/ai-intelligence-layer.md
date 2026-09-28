@@ -1,7 +1,7 @@
 # AI Intelligence Layer — Implementation Details
 
 *Created: 2026-07-21 21:50 IST*  
-*Last Updated: 2026-08-30 13:08 IST*
+*Last Updated: 2026-09-28 12:35:16 IST*
 *Tasks: [T26](../tasks/T26.md), [T65](../tasks/T65.md)*
 
 > **Current implementation note:** This is the canonical overview of the
@@ -455,6 +455,12 @@ Obsidian AI directly accessing private fields of each third-party plugin. T39a
 will provide host discovery, availability, policy, and audit routing; T39b
 defines Obsidian Git as the first provider. Future Dataview, Tasks, and
 Templater integrations must adopt that contract.
+
+**Dataview status (2026-09-28):** T17a now provides a built-in, read-only DQL
+query tool through Dataview's public query API. This does not implement the
+planned T39 Dataview provider or complete T26 Phase 4. The bridge examples
+below remain design samples; in particular, the DataviewJS example is not
+implemented and DataviewJS is not executed by the current tool.
 
 ### Bridge Pattern
 

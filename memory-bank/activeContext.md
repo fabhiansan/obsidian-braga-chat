@@ -9,10 +9,12 @@
 - Stop now aborts the turn, rejects and clears a pending tool approval, and
   both native and OpenResponses loops stop before starting further calls or a
   continuation.
-- TypeScript, Prettier, and `git diff --check` passed. Tests, production build,
-  and live Obsidian/mobile behavior were not run.
+- Added subtask T17a for the implemented optional, read-only Dataview DQL tool;
+  the T39 Dataview provider remains future work.
+- TypeScript, Prettier, and `git diff --check` passed; `npm run build` passed
+  on 2026-09-28. Tests and live Obsidian/mobile behavior were not run.
 
-### 2026-09-27 — Optional Dataview DQL tool
+### 2026-09-27 — T17a Optional Dataview DQL tool
 
 - Added read-only `query_dataview`, exposed only when Dataview's public query
   API is available. It runs DQL through `tryQueryMarkdown` or the compatible

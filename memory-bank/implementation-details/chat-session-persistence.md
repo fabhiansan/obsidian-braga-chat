@@ -1,6 +1,6 @@
 # Chat Session Persistence Design
 *Created: 2026-05-03 00:18:43 IST*
-*Last Updated: 2026-07-29 13:47:51 IST*
+*Last Updated: 2026-09-28 12:35:16 IST*
 
 ## Overview
 
@@ -234,11 +234,29 @@ Composer text that has not yet been sent is stored in `ChatSession.draft` so it 
 - `ChatInput` receives `draft` as an initial value and calls `onDraftChange(text)` on every keystroke.
 - `ChatApp` debounces the callback (500 ms) and updates the session via `setSessions`, so the existing JSONL persistence path picks it up automatically.
 - Draft is cleared when the user successfully sends the message.
-- Attachments are **not** auto-saved; only the text draft is persisted.
+- At the original implementation, attachments were not auto-saved; see the
+  2026-09-28 extension below.
 
 **Why session-scoped:** Each open tab in the shared tab bar has its own session, so drafts naturally travel with their conversation and do not leak across tabs.
 
 See [T31: Chat Input Draft Auto-Save](../tasks/T31.md) for implementation details.
+
+## 2026-09-28: Session-Scoped Draft Text and Attachments
+
+The composer is keyed by session and reports text/attachment changes to the
+active session. This keeps unsent input with its chat when tabs change and
+restores it after restart. Draft-only sessions are persisted when they contain
+text or attachments.
+
+For JSONL storage, `sessions/index.json` retains draft text and a reference to
+the session's `sessions/{id}.draft.json` file. The separate file stores draft
+attachments, including image payloads, without expanding the session index. A
+reference map avoids rewriting that file on each text autosave. Clearing or
+deleting a draft removes the separate file; legacy-to-JSONL migration carries
+both draft text and attachment payloads forward.
+
+Production build passed on 2026-09-28. Automated tests and live
+Obsidian/mobile behavior were not verified in this closeout.
 
 ---
 

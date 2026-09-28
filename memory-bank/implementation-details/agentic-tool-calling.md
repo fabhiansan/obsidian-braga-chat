@@ -1,6 +1,6 @@
 # Agentic Tool Calling Implementation
 *Created: 2026-05-03 02:40:00 IST*
-*Last Updated: 2026-08-25 23:55:03 IST*
+*Last Updated: 2026-09-28 12:35:16 IST*
 
 ## Overview
 
@@ -8,7 +8,7 @@ The LLM acts as an agent that can read, edit, create, move, delete, and organize
 
 **Status**: ✅ Tool layer implemented. AgentLoop extracted. PendingToolCard created. Tool result formatting active.
 
-### Optional Dataview DQL Queries (2026-09-27)
+### Optional Dataview DQL Queries (T17a, 2026-09-27)
 
 The read-only `query_dataview` tool is exposed only when the loaded Dataview
 plugin provides its public `tryQueryMarkdown` or `queryMarkdown` API. It runs
@@ -17,8 +17,9 @@ DQL only, caps query input at 5,000 characters, and caps formatted output at
 capability uses the shared registry and executor so availability, prompting,
 native tool calls, and OpenResponses calls use the same definition.
 
-TypeScript and the production bundle passed. Live Obsidian acceptance with
-Dataview installed remains unverified.
+TypeScript and the production bundle passed; `npm run build` passed again on
+2026-09-28. Live Obsidian acceptance with Dataview installed remains
+unverified.
 
 ## Current Audit Boundary — 2026-08-25
 
