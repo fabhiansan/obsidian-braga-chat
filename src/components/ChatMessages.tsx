@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, memo } from "react";
 import { App } from "obsidian";
 import { ChatMessage, ContentPart } from "../types";
 import { createRoot } from "react-dom/client";
-import MessageBubble from "./MessageBubble";
+import MessageBubble, { setupLinkInterception } from "./MessageBubble";
 import ToolCallNotification from "./presentational/ToolCallNotification";
 import { sanitizeHtmlForRenderer } from "../lib/sanitizeHtml";
 import { makeMarkdownTablesScrollable } from "./scrollableMarkdownTables";
@@ -10,13 +10,14 @@ import { makeMarkdownTablesScrollable } from "./scrollableMarkdownTables";
 const StreamingBubble: React.FC<{
 	content: string;
 	contentParts?: ContentPart[];
+	app: App;
 	renderMarkdown: (
 		markdown: string,
 		target: HTMLElement,
 		sourcePath?: string,
 	) => Promise<void>;
 	onOpenPastSession?: (sessionId: string, messageId: string) => void;
-}> = ({ content, contentParts, renderMarkdown, onOpenPastSession }) => {
+}> = ({ content, contentParts, app, renderMarkdown, onOpenPastSession }) => {
 	const contentRef = useRef<HTMLDivElement>(null);
 	const renderedCountRef = useRef(0);
 	const lastTextRef = useRef("");
@@ -98,6 +99,7 @@ const StreamingBubble: React.FC<{
 						).then(() => {
 							if (!unmounted) {
 								makeMarkdownTablesScrollable(textDiv);
+								setupLinkInterception(textDiv, app);
 							}
 						});
 					} else if (part.type === "tool_call") {
@@ -166,6 +168,7 @@ const StreamingBubble: React.FC<{
 					).then(() => {
 						if (!unmounted) {
 							makeMarkdownTablesScrollable(remainDiv!);
+							setupLinkInterception(remainDiv!, app);
 						}
 					});
 				} else {
@@ -190,6 +193,7 @@ const StreamingBubble: React.FC<{
 								makeMarkdownTablesScrollable(
 									contentRef.current,
 								);
+								setupLinkInterception(contentRef.current, app);
 							}
 						})
 						.catch((err: any) => {
@@ -579,6 +583,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
 					<StreamingBubble
 						content={currentAiMessage}
 						contentParts={currentContentParts}
+						app={app}
 						renderMarkdown={renderMarkdown}
 						onOpenPastSession={onOpenPastSession}
 					/>

@@ -108,7 +108,7 @@ function logChatLink(level: "debug" | "error", ...args: unknown[]): void {
 	if (level === "debug") logger?.flushNow?.();
 }
 
-function setupLinkInterception(container: HTMLElement, app: App): void {
+export function setupLinkInterception(container: HTMLElement, app: App): void {
 	const links = container.querySelectorAll("a");
 	Array.from(links).forEach((link) => {
 		// Remove any existing listener to avoid duplicates
