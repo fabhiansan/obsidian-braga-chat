@@ -100,6 +100,14 @@ export function highlightMentions(
  * Wire up internal Obsidian links so they open notes instead of crashing.
  * Also opens external links in the system browser.
  */
+function logChatLink(level: "debug" | "error", ...args: unknown[]): void {
+	const logger = (window as any).__obsidianAiLogger;
+	logger?.log?.(level, ...args);
+	// Link navigation can immediately trigger a failing Obsidian view. Flush
+	// breadcrumbs now so they survive even if that view interrupts the UI.
+	if (level === "debug") logger?.flushNow?.();
+}
+
 function setupLinkInterception(container: HTMLElement, app: App): void {
 	const links = container.querySelectorAll("a");
 	Array.from(links).forEach((link) => {
@@ -112,11 +120,10 @@ function setupLinkInterception(container: HTMLElement, app: App): void {
 				anchor.getAttribute("data-href") ||
 				anchor.getAttribute("href") ||
 				"";
-			(window as any).__obsidianAiLogger?.log?.(
-				"debug",
-				"[ChatLinks] pointerenter",
-				JSON.stringify({ target, className: anchor.className }),
-			);
+			logChatLink("debug", "[ChatLinks] pointerenter", {
+				target,
+				className: anchor.className,
+			});
 		});
 
 		newLink.addEventListener("click", async (e: Event) => {
@@ -127,20 +134,15 @@ function setupLinkInterception(container: HTMLElement, app: App): void {
 			const rawHref = anchor.getAttribute("href") || "";
 			const dataHref = anchor.getAttribute("data-href") || "";
 			const href = dataHref || rawHref;
-			const logger = (window as any).__obsidianAiLogger;
-			logger?.log?.(
-				"debug",
-				"[ChatLinks] click",
-				JSON.stringify({
-					href,
-					rawHref,
-					dataHref,
-					className: anchor.className,
-					connected: anchor.isConnected,
-				}),
-			);
+			logChatLink("debug", "[ChatLinks] click", {
+				href,
+				rawHref,
+				dataHref,
+				className: anchor.className,
+				connected: anchor.isConnected,
+			});
 			if (href.startsWith("obsidian-ai://open-session")) {
-				logger?.log?.(
+				logChatLink(
 					"debug",
 					"[ChatLinks] dispatching chat session link",
 				);
@@ -168,26 +170,20 @@ function setupLinkInterception(container: HTMLElement, app: App): void {
 					const cleanHref = href
 						.replace(/^\[\[/, "")
 						.replace(/\]\]$/, "");
-					logger?.log?.(
-						"debug",
-						"[ChatLinks] openLinkText start",
-						JSON.stringify({
-							target: cleanHref,
-							sourcePath: "",
-							newLeaf: false,
-						}),
-					);
+					logChatLink("debug", "[ChatLinks] openLinkText start", {
+						target: cleanHref,
+						sourcePath: "",
+						newLeaf: false,
+					});
 					await app.workspace.openLinkText(cleanHref, "", false);
-					logger?.log?.(
-						"debug",
-						"[ChatLinks] openLinkText resolved",
-						JSON.stringify({ target: cleanHref }),
-					);
+					logChatLink("debug", "[ChatLinks] openLinkText resolved", {
+						target: cleanHref,
+					});
 				} catch (err) {
-					logger?.log?.(
+					logChatLink(
 						"error",
 						"[ChatLinks] openLinkText rejected",
-						JSON.stringify({ target: href }),
+						{ target: href },
 						err,
 					);
 					console.error(
@@ -219,32 +215,37 @@ function setupLinkInterception(container: HTMLElement, app: App): void {
 
 			// Fallback — treat as internal link
 			try {
-				logger?.log?.(
+				logChatLink(
 					"debug",
 					"[ChatLinks] openLinkText fallback start",
-					JSON.stringify({
+					{
 						target: href,
 						sourcePath: "",
 						newLeaf: false,
-					}),
+					},
 				);
 				await app.workspace.openLinkText(href, "", false);
-				logger?.log?.(
+				logChatLink(
 					"debug",
 					"[ChatLinks] openLinkText fallback resolved",
-					JSON.stringify({ target: href }),
+					{ target: href },
 				);
 			} catch (err) {
-				logger?.log?.(
+				logChatLink(
 					"error",
 					"[ChatLinks] openLinkText fallback rejected",
-					JSON.stringify({ target: href }),
+					{ target: href },
 					err,
 				);
 				console.error("[obsidian-ai] Failed to open link:", err);
 			}
 		});
 	});
+	if (links.length > 0) {
+		logChatLink("debug", "[ChatLinks] handlers installed", {
+			count: links.length,
+		});
+	}
 }
 
 interface MessageBubbleProps {
