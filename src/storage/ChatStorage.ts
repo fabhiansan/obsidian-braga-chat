@@ -452,6 +452,8 @@ class JsonlStorage implements ChatStorage {
 		const indexEntries: SessionIndexEntry[] = [];
 		const incomingIds = new Set(data.sessions.map((session) => session.id));
 		const deletedIds = new Set(data.deletedSessionIds ?? []);
+		let preservedUnhydratedSessions = 0;
+		let preservedUnhydratedMessages = 0;
 
 		for (const session of data.sessions) {
 			const filePath = `${SESSIONS_DIR}/${session.id}.jsonl`;
@@ -512,10 +514,8 @@ class JsonlStorage implements ChatStorage {
 					draftAttachmentsFile,
 					scrollPosition: session.scrollPosition,
 				});
-				this.deps.logger?.log(
-					"warn",
-					`JsonlStorage: refused empty overwrite for ${session.id} (index expects ${expectedMessageCount})`,
-				);
+				preservedUnhydratedSessions++;
+				preservedUnhydratedMessages += expectedMessageCount;
 				continue;
 			}
 
@@ -551,6 +551,12 @@ class JsonlStorage implements ChatStorage {
 				contextItems: session.contextItems,
 				compactionMetadata: session.compactionMetadata,
 			});
+		}
+		if (preservedUnhydratedSessions > 0) {
+			this.deps.logger?.log(
+				"debug",
+				`JsonlStorage: preserved ${preservedUnhydratedSessions} unhydrated session(s) with ${preservedUnhydratedMessages} on-disk message(s); skipped empty writes`,
+			);
 		}
 
 		// A mounted chat view can hold a stale or intentionally bounded subset of
