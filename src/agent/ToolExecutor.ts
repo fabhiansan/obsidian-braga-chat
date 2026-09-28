@@ -287,7 +287,26 @@ export class ToolExecutor {
 				this.settingsHandlers.updateSetting(
 					call.args as { key: string; value: unknown },
 				),
-			get_plugin_info: (call) => this.settingsHandlers.getPluginInfo(),
+			get_plugin_info: () =>
+				this.settingsHandlers.getPluginInfo(
+					this.builtInRegistry.definitions.map(
+						({
+							id,
+							title,
+							description,
+							risk,
+							source,
+							providerName,
+						}) => ({
+							id,
+							title,
+							description,
+							risk,
+							source,
+							...(providerName ? { providerName } : {}),
+						}),
+					),
+				),
 		});
 		const providerDefinitions: ToolDefinition[] =
 			this.integrationRegistry?.getToolDefinitions() ?? [];

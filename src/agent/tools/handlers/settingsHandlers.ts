@@ -48,7 +48,9 @@ export class SettingsHandlers extends ToolHandlerBase {
 		// Resolve nested path for assignment
 		const resolved = resolveSettingPath(this.settings, args.key);
 		if (!resolved) {
-			return { error: `Failed to resolve path "${args.key}" in settings.` };
+			return {
+				error: `Failed to resolve path "${args.key}" in settings.`,
+			};
 		}
 
 		// Apply the update
@@ -75,7 +77,16 @@ export class SettingsHandlers extends ToolHandlerBase {
 		};
 	}
 
-	async getPluginInfo(): Promise<ToolResult> {
+	async getPluginInfo(
+		availableCapabilities: Array<{
+			id: string;
+			title: string;
+			description: string;
+			risk: string;
+			source: string;
+			providerName?: string;
+		}>,
+	): Promise<ToolResult> {
 		// Read manifest.json from the plugin directory
 		const pluginId = this.pluginId ?? "obsidian-ai";
 		const manifestPath = `${this.app.vault.configDir}/plugins/${pluginId}/manifest.json`;
@@ -86,17 +97,35 @@ export class SettingsHandlers extends ToolHandlerBase {
 			}
 			const content = await adapter.read(manifestPath);
 			const manifest = JSON.parse(content);
+			const authorUrl =
+				typeof manifest.authorUrl === "string"
+					? manifest.authorUrl
+					: null;
 			return {
 				success: true,
-				content: JSON.stringify({
-					name: manifest.name,
-					version: manifest.version,
-					author: manifest.author,
-					authorUrl: manifest.authorUrl,
-					description: manifest.description,
-					minAppVersion: manifest.minAppVersion,
-					isDesktopOnly: manifest.isDesktopOnly,
-				}, null, 2),
+				content: JSON.stringify(
+					{
+						name: manifest.name,
+						version: manifest.version,
+						creator: {
+							name: manifest.author,
+							profileUrl: authorUrl,
+						},
+						contact: {
+							authorProfile: authorUrl,
+							project:
+								"https://github.com/space-cadet/obsidian-ai",
+							support:
+								"https://github.com/space-cadet/obsidian-ai/issues",
+						},
+						description: manifest.description,
+						minAppVersion: manifest.minAppVersion,
+						isDesktopOnly: manifest.isDesktopOnly,
+						availableCapabilities,
+					},
+					null,
+					2,
+				),
 			};
 		} catch (e: any) {
 			return {
