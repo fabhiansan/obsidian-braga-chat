@@ -108,29 +108,36 @@ function logChatLink(level: "debug" | "error", ...args: unknown[]): void {
 	if (level === "debug") logger?.flushNow?.();
 }
 
-export function setupLinkInterception(container: HTMLElement, app: App): void {
-	const links = container.querySelectorAll("a");
-	Array.from(links).forEach((link) => {
-		// Remove any existing listener to avoid duplicates
-		const newLink = link.cloneNode(true) as HTMLElement;
-		link.parentNode?.replaceChild(newLink, link);
-		newLink.addEventListener("pointerenter", () => {
-			const anchor = newLink as HTMLAnchorElement;
-			const target =
-				anchor.getAttribute("data-href") ||
-				anchor.getAttribute("href") ||
-				"";
-			logChatLink("debug", "[ChatLinks] pointerenter", {
-				target,
-				className: anchor.className,
-			});
-		});
+const linkInterceptionContainers = new WeakSet<HTMLElement>();
 
-		newLink.addEventListener("click", async (e: Event) => {
+export function setupLinkInterception(container: HTMLElement, app: App): void {
+	const linkCount = container.querySelectorAll("a").length;
+	if (linkInterceptionContainers.has(container)) {
+		if (linkCount > 0) {
+			logChatLink("debug", "[ChatLinks] handlers already installed", {
+				count: linkCount,
+			});
+		}
+		return;
+	}
+	linkInterceptionContainers.add(container);
+
+	// Use one capture listener on the stable message container. Replacing
+	// Obsidian-rendered anchors can leave the mobile renderer holding references
+	// to detached nodes and crash before a target-level click handler runs.
+	container.addEventListener(
+		"click",
+		async (e: Event) => {
+			const target = e.target;
+			if (!(target instanceof Element)) return;
+			const anchor = target.closest("a");
+			if (!(anchor instanceof HTMLAnchorElement)) return;
+			if (!container.contains(anchor)) return;
+
 			e.preventDefault();
 			e.stopPropagation();
+			e.stopImmediatePropagation();
 
-			const anchor = e.currentTarget as HTMLAnchorElement;
 			const rawHref = anchor.getAttribute("href") || "";
 			const dataHref = anchor.getAttribute("data-href") || "";
 			const href = dataHref || rawHref;
@@ -239,11 +246,12 @@ export function setupLinkInterception(container: HTMLElement, app: App): void {
 				);
 				console.error("[obsidian-ai] Failed to open link:", err);
 			}
-		});
-	});
-	if (links.length > 0) {
+		},
+		true,
+	);
+	if (linkCount > 0) {
 		logChatLink("debug", "[ChatLinks] handlers installed", {
-			count: links.length,
+			count: linkCount,
 		});
 	}
 }
