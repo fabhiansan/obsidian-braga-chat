@@ -39,11 +39,13 @@ const baseProps = {
 	onToggleRemoteUserDropdown: vi.fn(),
 	onToggleRelay: vi.fn(),
 	onToggleSearch: vi.fn(),
+	onToggleZenMode: vi.fn(),
+	zenMode: false,
 	searchVisible: false,
 };
 
 describe("ActionBar participant badges", () => {
-	it("orders the model selector immediately before Agents and leaves secondary actions in More", () => {
+	it("orders the model selector before Agents and keeps primary actions visible", () => {
 		const { container } = render(
 			<ActionBar {...baseProps} participantCount={1} />,
 		);
@@ -64,9 +66,28 @@ describe("ActionBar participant badges", () => {
 		);
 		expect(
 			(controls[5] as HTMLButtonElement).getAttribute("aria-label"),
+		).toBe("Sync with remote");
+		expect(
+			(controls[6] as HTMLButtonElement).getAttribute("aria-label"),
+		).toBe("Zen mode");
+		expect(
+			(controls[7] as HTMLButtonElement).getAttribute("aria-label"),
+		).toBe("Settings");
+		expect(
+			(controls[8] as HTMLButtonElement).getAttribute("aria-label"),
 		).toBe("More actions");
 		expect(container.querySelector(".chat-action-bar-center")).toBeNull();
-		fireEvent.click(controls[5]);
+		fireEvent.click(controls[8]);
+	});
+
+	it("routes Sync and Zen mode from their toolbar buttons", () => {
+		const { getByRole } = render(<ActionBar {...baseProps} />);
+
+		fireEvent.click(getByRole("button", { name: "Sync with remote" }));
+		fireEvent.click(getByRole("button", { name: "Zen mode" }));
+
+		expect(baseProps.onOpenSync).toHaveBeenCalledOnce();
+		expect(baseProps.onToggleZenMode).toHaveBeenCalledOnce();
 	});
 
 	it.each([0, 1, 2])(

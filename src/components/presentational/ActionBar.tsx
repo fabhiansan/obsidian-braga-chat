@@ -153,34 +153,6 @@ const ActionBar: React.FC<ActionBarProps> = ({
 				.setSection("data")
 				.onClick(() => onExportChat()),
 		);
-		menu.addItem((item) =>
-			item
-				.setTitle("Sync with remote…")
-				.setIcon("sync")
-				.setSection("data")
-				.onClick(() => onOpenSync()),
-		);
-
-		menu.addItem((item) =>
-			item.setTitle("App").setIsLabel(true).setSection("app"),
-		);
-		if (onToggleZenMode) {
-			menu.addItem((item) =>
-				item
-					.setTitle("Zen mode")
-					.setIcon("maximize")
-					.setChecked(zenMode ?? false)
-					.setSection("app")
-					.onClick(() => onToggleZenMode()),
-			);
-		}
-		menu.addItem((item) =>
-			item
-				.setTitle("Settings")
-				.setIcon("settings")
-				.setSection("app")
-				.onClick(openSettings),
-		);
 		menu.showAtMouseEvent(event.nativeEvent as MouseEvent);
 	};
 
@@ -255,6 +227,36 @@ const ActionBar: React.FC<ActionBarProps> = ({
 						</button>
 					</div>
 				)}
+				<button
+					className="chat-btn chat-icon-btn"
+					onClick={onOpenSync}
+					title="Sync with remote"
+					aria-label="Sync with remote"
+					type="button"
+				>
+					<ObsidianIcon icon="sync" size={15} />
+				</button>
+				{onToggleZenMode && (
+					<button
+						className={`chat-btn chat-icon-btn ${zenMode ? "is-active" : ""}`}
+						onClick={onToggleZenMode}
+						title={zenMode ? "Exit zen mode" : "Zen mode"}
+						aria-label={zenMode ? "Exit zen mode" : "Zen mode"}
+						aria-pressed={zenMode ?? false}
+						type="button"
+					>
+						<ObsidianIcon icon="maximize" size={15} />
+					</button>
+				)}
+				<button
+					className="chat-btn chat-icon-btn"
+					onClick={openSettings}
+					title="Settings"
+					aria-label="Settings"
+					type="button"
+				>
+					<ObsidianIcon icon="settings" size={15} />
+				</button>
 				<button
 					className="chat-btn chat-icon-btn"
 					onClick={showMoreMenu}
