@@ -1,83 +1,41 @@
-# Fix: Obsidian Note Link Click Crash (T28)
+# Obsidian Note-Link Interception (T28)
 
-**Status:** ✅ COMPLETED  
-**Date:** 2026-07-28  
-**Related Tasks:** T28  
+**Status:** Regression unresolved; live acceptance required
+**Related tasks:** T28, T11
 
-## Problem
+## Current behavior
 
-When the agent returned messages containing Obsidian wiki-links (`[[Note Name]]`), clicking them crashed the entire Obsidian app instead of opening the note.
+Chat-rendered note links are intercepted and opened through Obsidian's
+`workspace.openLinkText()` API. The handler resolves Obsidian-rendered
+`data-href` targets as well as anchor `href` values, handles external links
+separately, and catches asynchronous navigation failures. The click path emits
+`[ChatLinks]` breadcrumbs so a debug log can distinguish interception,
+resolution, navigation, and a failure.
 
-## Root Cause
+The interception is wired for both normal message content and streamed reply
+content. The awaited navigation and streamed-reply wiring were added in the
+2026-09-28/29 follow-ups (`daa7f2e`, `0ead3de`, `9a9aae4`, `e367c01`).
 
-`MarkdownRenderer.render()` converts wiki-links to HTML `<a>` tags. In the chat panel (a React component, not a native MarkdownView), Obsidian's default link handler couldn't resolve the click context and crashed.
+## Known unresolved behavior
 
-## Solution
+The user reports that clicking a vault-document link in a previously loaded
+chat still crashes Obsidian. The supplied mobile log contains a minified
+renderer rejection, `Cannot read properties of null (reading 'children')`, but
+does not show `[ChatLinks]` entries around the click. This is insufficient to
+confirm whether the plugin handler ran or to establish the cause. Keep T28
+open until a click on the updated build is captured with the corresponding
+debug log and the actual handler path is known.
 
-Added `setupLinkInterception()` function in `src/components/MessageBubble.tsx` that:
+## Diagnostic procedure
 
-1. Intercepts all click events on `<a>` tags within rendered message content
-2. Routes internal links through `app.workspace.openLinkText()`
-3. Opens external URLs (`http://`, `https://`) in browser
-4. Catches errors to prevent crashes
+1. Enable plugin Debug Mode and reproduce a vault-link click in the loaded
+   chat that exhibits the issue.
+2. Check for `[ChatLinks]` entries immediately before the crash.
+3. If absent, investigate whether the rendered anchor bypasses the plugin's
+   delegated handler or whether the click occurred in a renderer outside the
+   intercepted container.
+4. If present, use the last breadcrumb to identify resolution, API navigation,
+   or rejection as the failing step. Preserve the Obsidian error and timestamp.
 
-## Code Changes
-
-### `src/components/MessageBubble.tsx`
-
-Added `setupLinkInterception(container, app)`:
-
-```typescript
-function setupLinkInterception(container: HTMLElement, app: App): void {
-    const links = container.querySelectorAll("a");
-    for (const link of links) {
-        const newLink = link.cloneNode(true) as HTMLElement;
-        link.parentNode?.replaceChild(newLink, link);
-
-        newLink.addEventListener("click", (e: Event) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const anchor = e.currentTarget as HTMLAnchorElement;
-            const href = anchor.getAttribute("href") || "";
-
-            // Internal Obsidian wiki-link
-            if (href.startsWith("[[") || href.endsWith(".md") || anchor.classList.contains("internal-link")) {
-                const cleanHref = href.replace(/^\[\[/, "").replace(/\]\]$/, "");
-                app.workspace.openLinkText(cleanHref, "", false);
-                return;
-            }
-
-            // obsidian:// protocol
-            if (href.startsWith("obsidian://")) {
-                window.open(href, "_blank");
-                return;
-            }
-
-            // External link
-            if (href.startsWith("http://") || href.startsWith("https://")) {
-                window.open(href, "_blank");
-                return;
-            }
-
-            // Fallback: treat as internal
-            app.workspace.openLinkText(href, "", false);
-        });
-    }
-}
-```
-
-Applied in:
-- `TextSegment` useEffect after MarkdownRenderer.render()
-- `StreamingBubble` useEffect after MarkdownRenderer.render()
-
-## Testing Notes
-
-- Test with `[[Note Name]]` format
-- Test with `[[Note|Alias]]` format
-- Test with external URLs
-- Verify no crashes from any link interaction
-
-## Files Modified
-
-- `src/components/MessageBubble.tsx`
+Do not mark the crash fixed from a successful source build alone. A prior
+loaded-chat click and log review is still needed.

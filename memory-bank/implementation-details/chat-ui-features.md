@@ -45,6 +45,15 @@ setSelectedProfileIds(new Set([fallbackId]));
 - `src/components/ChatMessages.tsx` — forwards `showThinking` to `MessageBubble`
 - `src/components/MessageBubble.tsx` — `TextSegment` conditionally strips thinking tags
 
+## Wide Markdown Tables (2026-09-28)
+
+Markdown tables in chat are wrapped in a horizontally scrollable container so
+wide columns remain reachable on narrow or mobile chat panes. The renderer is
+`src/components/scrollableMarkdownTables.ts`; it is integrated in
+`src/components/MessageBubble.tsx` and `src/components/ChatMessages.tsx`, with
+the layout styles in `styles/_chat.css` and generated `styles.css`. The user
+confirmed the horizontal overflow fix works.
+
 ## Provider-Adaptive Progress — T60e/T15 (planned)
 
 The current chat UI updates visible text incrementally but does not expose

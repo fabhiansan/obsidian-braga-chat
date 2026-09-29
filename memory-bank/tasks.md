@@ -20,6 +20,7 @@ This is the Memory Bank for the Sage (灵剑) OpenClaw workspace.
 | T16b | Addressable Agent Participants and Unified `@` Resolution | 🔄 | HIGH | 2026-08-31 | T16, T43 | [Details](tasks/T16b.md) |
 | T17 | Advanced Vault Tools — Backlinks, YAML, Bulk Ops, Templating, Maintenance | ⏸️ | HIGH | 2026-05-15 | T13, T14, T60a, T60c | [Details](tasks/T17.md) |
 | T17a | Optional Dataview DQL Query Tool | 🔄 | MEDIUM | 2026-09-27 | T17, T13, T14, T60a, T60c | [Details](tasks/T17a.md) |
+| T28 | Fix Obsidian Note Link Click Crash | 🔄 | HIGH | 2026-07-28 | T4, T13 | [Details](tasks/T28.md) |
 | T38 | Tool Approval Policy Framework | ❌ | — | 2026-08-05 | — | [Details](tasks/T38.md) |
 | T39 | Git Integration Provider (obsidian-git → obsidian-ai) | ✅ | HIGH | 2026-08-05 | 2026-09-18 | T39a, T39b | [Details](tasks/T39.md) |
 | T39a | Provider API Host, Lifecycle, and Tool-Policy Boundary | ✅ | HIGH | 2026-08-05 | 2026-09-18 | T39, T13, T38 | [Details](tasks/T39a.md) |

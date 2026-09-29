@@ -1,5 +1,22 @@
 # Active Context
 
+### 2026-09-29 — Plugin self-description, chat tables, and link-crash follow-up
+
+- `get_plugin_info` now returns manifest creator/contact information and active
+  built-in capability descriptions (`1597a28`). Chat Markdown tables scroll
+  horizontally (`bc00e4f`); the user confirmed the fix works.
+- Link interception now awaits Obsidian navigation and traces its click path;
+  the reported crash in a previously loaded chat remains open as T28 because
+  the supplied log has no `[ChatLinks]` breadcrumb to establish handler entry.
+- Repeated JSONL empty-write warnings were grouped into one Debug summary per
+  save; the positive-count data-loss guard remains enabled (`e367c01`).
+- Discussed Obsidian graph access: public metadata such as
+  `metadataCache.resolvedLinks` can support plugin queries; the built-in Graph
+  view is a visualization. No graph feature or vault map was built.
+- Source head `30d83cd` on `main`; source builds passed during the session.
+  No tests were run for the final logging change and live loaded-chat link
+  acceptance is still pending. See today's session record.
+
 ### 2026-09-28 — Chat draft isolation and approval cancellation
 
 - The composer remounts per session and stores unsent text on that session, so

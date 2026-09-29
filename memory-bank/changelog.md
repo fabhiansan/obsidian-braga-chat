@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased — 2026-09-29
+
+### Added
+
+- `get_plugin_info` now includes manifest creator/contact details and the
+  active built-in capability descriptions, giving the agent a self-description
+  query surface — T65 (`1597a28`).
+
+### Changed
+
+- Wide Markdown tables in chat now scroll horizontally; the user confirmed
+  this fixes the clipped content on the chat screen (`bc00e4f`).
+- JSONL storage reports protected lazy-loaded empty writes once per save at
+  Debug level rather than emitting one warning per session; the write guard
+  remains active — T24 (`e367c01`).
+
+### Diagnostic follow-up
+
+- Note-link interception now awaits Obsidian navigation and emits click-path
+  breadcrumbs, including for streamed replies. The reported loaded-chat crash
+  still lacks `[ChatLinks]` evidence and remains unresolved pending live
+  diagnosis — T28/T11 (`daa7f2e`, `0ead3de`, `9a9aae4`, `e367c01`).
+- Reviewed Obsidian's public graph metadata surface for future planning only;
+  no graph tools or vault map were implemented — T17.
+
 ## Unreleased — 2026-09-22
 
 ### Fixed

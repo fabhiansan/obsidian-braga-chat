@@ -1,10 +1,24 @@
 # Error Log
 *Created: 2026-05-02 08:00:01 IST*
-*Last Updated: 2026-09-21 21:58 IST*
+*Last Updated: 2026-09-29 20:10 IST*
 
 *Newest entries first. Each entry documents a development error, its cause, and resolution.*
 
 ---
+
+### 2026-09-29 20:10 IST — Loaded-chat vault link still crashes (ERR-20260929-001)
+
+- Symptom: clicking a vault-document link in a previously loaded chat crashes
+  Obsidian. The earlier mobile stack reports a minified renderer rejection:
+  `Cannot read properties of null (reading 'children')`.
+- Evidence: the supplied debug-log excerpt contains startup and storage output,
+  but no `[ChatLinks]` breadcrumb at the time of the click. It does not prove
+  whether the handler ran or identify the failure site.
+- Current code includes awaited `openLinkText` handling, caught navigation
+  errors, and interception for streamed replies (`30d83cd` source head).
+- Status: 🔄 Unresolved. Reproduce on the updated plugin and capture the log
+  around the click; see [T28](tasks/T28.md) and
+  [note-link-interception.md](implementation-details/note-link-interception.md).
 
 ### 2026-09-21 13:21 IST — Sync stack overflow on every path (ERR-20260921-002)
 

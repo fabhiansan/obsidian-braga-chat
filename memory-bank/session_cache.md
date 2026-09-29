@@ -1,5 +1,23 @@
 # Session Cache
 
+## 2026-09-29 — Plugin self-description, chat UI, and link diagnostics
+
+- Source commits: `1597a28` adds creator/contact and active capability details
+  to `get_plugin_info`; `bc00e4f` makes chat Markdown tables horizontally
+  scrollable (user-confirmed); `daa7f2e`, `0ead3de`, `9a9aae4`, and `e367c01`
+  extend link navigation diagnostics and reduce repeated JSONL empty-write
+  warnings without removing the positive-count write guard.
+- Link crash is unresolved. The user reproduced it in a previously loaded chat;
+  the provided log contains no `[ChatLinks]` evidence around the click. Re-test
+  the updated plugin with a click-correlated log before closing T28.
+- Graph discussion only: use public `metadataCache.resolvedLinks` and
+  per-file link cache for future query design; built-in Graph view is the
+  visualization. No graph API surface or vault map was implemented.
+- Source branch `main`, head `30d83cd914ad9cd48331dcff52dfe970a533ac0c`.
+  Builds passed during source work; no tests were run for the final log change.
+- See `sessions/2026-09-29-plugin-self-description-and-link-diagnostics.md`,
+  T28/T11/T24/T65/T17, and `implementation-details/note-link-interception.md`.
+
 ## 2026-09-28 — T17a Dataview DQL and chat draft/tool-cancellation fixes
 
 - Added Memory Bank subtask T17a under T17 for the implemented read-only

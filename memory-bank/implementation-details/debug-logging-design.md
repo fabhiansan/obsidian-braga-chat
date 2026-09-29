@@ -329,3 +329,16 @@ hydration state transitions without logging message contents. JSONL storage
 also warns when it refuses an empty overwrite for a positive-count session or
 preserves an omitted session from a partial snapshot. These warnings indicate
 that the safety guard blocked a destructive write.
+
+## 2026-09-29 Note-Link and Storage Log Follow-up
+
+The chat link handler emits `[ChatLinks]` breadcrumbs around interception,
+destination resolution, awaited Obsidian navigation, and caught errors. These
+are intended to determine whether clicks in restored messages reach the
+handler; absence of a breadcrumb leaves that question open. Do not log note
+contents or full chat messages as part of this trace.
+
+The JSONL positive-count empty-write guard still protects lazy-loaded sessions.
+Repeated per-session warnings were replaced with a single Debug-level summary
+per save (`e367c01`), including the aggregate number refused. The guard and
+summary behavior are recorded in T24.
