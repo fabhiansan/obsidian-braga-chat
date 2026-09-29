@@ -15,10 +15,31 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	flex: 0 0 auto;
+	flex: 0 1 auto;
+	width: min(168px, 36vw);
+	min-width: 92px;
+	max-width: 168px;
+	min-height: 36px;
+	padding: 5px 8px;
 	cursor: pointer;
 	white-space: nowrap;
 	overflow: hidden;
+}
+
+.chat-model-switcher-provider {
+	flex: 0 0 auto;
+	max-width: 52px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-transform: capitalize;
+	color: var(--text-muted);
+	font-size: 0.72em;
+}
+
+.chat-model-switcher-separator,
+.chat-model-switcher-chevron {
+	flex: 0 0 auto;
+	color: var(--text-faint);
 }
 
 .chat-model-switcher-provider-dot {
@@ -33,7 +54,11 @@
 
 .chat-model-switcher-current {
 	display: block;
-	flex: 0 0 auto;
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	font-size: 0.85em;
 	font-weight: 600;
 	line-height: 1;
@@ -251,15 +276,21 @@
 	color: var(--text-normal);
 }
 
-/* Keep the selector available on phones; the toolbar itself can scroll horizontally. */
+/* The combined provider/model selector stays legible without making the row scroll. */
 @media (max-width: 480px) {
 	.chat-model-switcher-trigger {
-		min-width: 26px;
+		width: min(150px, 38vw);
+		min-width: 92px;
 	}
 }
 
 @media (max-width: 360px) {
 	.chat-model-switcher-trigger {
-		min-width: 26px;
+		width: min(132px, 38vw);
+		min-width: 84px;
+	}
+
+	.chat-model-switcher-provider {
+		max-width: 42px;
 	}
 }

@@ -47,8 +47,9 @@ describe("ModelSwitcher", () => {
 		);
 
 		const trigger = screen.getByTestId("model-switcher-trigger");
-		expect(trigger.textContent).toBe("1");
-		expect(trigger.getAttribute("aria-label")).toBe("1 active model");
+		expect(trigger.textContent).toContain("openrouter");
+		expect(trigger.textContent).toContain("openai/gpt-oss-120b");
+		expect(trigger.getAttribute("aria-label")).toContain("Change model");
 		expect(trigger.getAttribute("aria-expanded")).toBe("false");
 
 		fireEvent.click(trigger);
@@ -82,9 +83,9 @@ describe("ModelSwitcher", () => {
 			expect(plugin.saveSettings).toHaveBeenCalledOnce();
 			expect(plugin.settings.providerProfiles[0].model).toBe("gpt-4o");
 		});
-		expect(screen.getByTestId("model-switcher-trigger").textContent).toBe(
-			"1",
-		);
+		expect(
+			screen.getByTestId("model-switcher-trigger").textContent,
+		).toContain("gpt-4o");
 	});
 
 	it("keeps model caches isolated for profiles using the same provider", () => {

@@ -943,20 +943,43 @@
 	border-bottom: 1px solid var(--background-modifier-border);
 	flex-shrink: 0;
 	min-height: 40px;
-	overflow-x: auto;
-	scrollbar-width: none;
-	-ms-overflow-style: none;
-}
-
-.chat-action-bar::-webkit-scrollbar {
-	display: none;
+	min-width: 0;
+	overflow: hidden;
 }
 
 .chat-action-bar-left {
 	display: flex;
 	align-items: center;
 	gap: 4px;
-	flex-shrink: 0;
+	flex: 1 1 auto;
+	min-width: 0;
+	justify-content: space-between;
+}
+
+.chat-action-bar-left > .chat-icon-btn,
+.chat-action-bar-left .chat-council-trigger > .chat-icon-btn {
+	width: 36px;
+	min-width: 36px;
+	height: 36px;
+	min-height: 36px;
+	padding: 6px;
+	flex: 0 0 auto;
+}
+
+@media (max-width: 360px) {
+	.chat-action-bar {
+		padding-right: 6px;
+		padding-left: 6px;
+	}
+
+	.chat-action-bar-left > .chat-icon-btn,
+	.chat-action-bar-left .chat-council-trigger > .chat-icon-btn {
+		width: 32px;
+		min-width: 32px;
+		height: 32px;
+		min-height: 32px;
+		padding: 4px;
+	}
 }
 
 .chat-action-bar-center {
@@ -966,6 +989,12 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+@media (max-width: 600px) {
+	.chat-action-bar-center {
+		display: none;
+	}
 }
 
 .chat-action-bar-right {
@@ -1030,7 +1059,7 @@
 	text-transform: capitalize;
 }
 
-/* Keep the active model visible; profile/provider details remain in the tooltip. */
+/* Keep the passive profile summary compact below the interactive toolbar. */
 @media (max-width: 480px) {
 	.chat-profile-chip {
 		max-width: 160px;
@@ -5689,10 +5718,31 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	flex: 0 0 auto;
+	flex: 0 1 auto;
+	width: min(168px, 36vw);
+	min-width: 92px;
+	max-width: 168px;
+	min-height: 36px;
+	padding: 5px 8px;
 	cursor: pointer;
 	white-space: nowrap;
 	overflow: hidden;
+}
+
+.chat-model-switcher-provider {
+	flex: 0 0 auto;
+	max-width: 52px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-transform: capitalize;
+	color: var(--text-muted);
+	font-size: 0.72em;
+}
+
+.chat-model-switcher-separator,
+.chat-model-switcher-chevron {
+	flex: 0 0 auto;
+	color: var(--text-faint);
 }
 
 .chat-model-switcher-provider-dot {
@@ -5707,7 +5757,11 @@
 
 .chat-model-switcher-current {
 	display: block;
-	flex: 0 0 auto;
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	font-size: 0.85em;
 	font-weight: 600;
 	line-height: 1;
@@ -5925,15 +5979,21 @@
 	color: var(--text-normal);
 }
 
-/* Keep the selector available on phones; the toolbar itself can scroll horizontally. */
+/* The combined provider/model selector stays legible without making the row scroll. */
 @media (max-width: 480px) {
 	.chat-model-switcher-trigger {
-		min-width: 26px;
+		width: min(150px, 38vw);
+		min-width: 92px;
 	}
 }
 
 @media (max-width: 360px) {
 	.chat-model-switcher-trigger {
-		min-width: 26px;
+		width: min(132px, 38vw);
+		min-width: 84px;
+	}
+
+	.chat-model-switcher-provider {
+		max-width: 42px;
 	}
 }
