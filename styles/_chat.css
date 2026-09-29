@@ -208,46 +208,80 @@
 	border-bottom: 1px solid var(--background-modifier-border);
 	flex-shrink: 0;
 	min-height: 40px;
-	overflow-x: auto;
-	scrollbar-width: none;
-	-ms-overflow-style: none;
-}
-
-.chat-action-bar::-webkit-scrollbar {
-	display: none;
+	min-width: 0;
+	overflow: hidden;
 }
 
 .chat-action-bar-left {
 	display: flex;
 	align-items: center;
-	gap: 4px;
-	flex-shrink: 0;
+	gap: 8px;
+	flex: 1 1 auto;
+	min-width: 0;
+	justify-content: flex-start;
 }
 
-.chat-action-bar-center {
-	flex: 1;
+.chat-action-bar-left > .chat-icon-btn,
+.chat-action-bar-left .chat-council-trigger > .chat-icon-btn {
+	width: auto;
+	min-width: 36px;
+	height: 36px;
+	min-height: 36px;
+	padding: 6px;
+	flex: 1 1 0;
+}
+
+.chat-action-bar-left > .chat-model-switcher {
+	flex: 1 1 0;
+	min-width: 36px;
+}
+
+.chat-action-bar-left .chat-model-switcher-trigger {
+	width: 100%;
 	min-width: 0;
-	padding: 0 8px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	max-width: none;
+	flex: 1 1 0;
+}
+
+.chat-action-bar-left .chat-council-trigger {
+	flex: 1 1 0;
+	min-width: 36px;
+}
+
+@media (max-width: 480px) {
+	.chat-action-bar {
+		padding-right: 6px;
+		padding-left: 6px;
+		gap: 4px;
+	}
+
+	.chat-action-bar-left > .chat-icon-btn,
+	.chat-action-bar-left .chat-council-trigger > .chat-icon-btn {
+		width: auto;
+		min-width: 36px;
+		height: 44px;
+		min-height: 44px;
+	}
+
+	.chat-action-bar-left {
+		gap: 4px;
+	}
+
+	.chat-action-bar-left > .chat-model-switcher,
+	.chat-action-bar-left .chat-council-trigger {
+		min-width: 36px;
+	}
+
+	.chat-action-bar-left .chat-model-switcher-trigger {
+		height: 44px;
+		min-height: 44px;
+	}
 }
 
 .chat-action-bar-right {
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
-}
-
-.chat-session-title-display {
-	font-size: 0.85em;
-	font-weight: 600;
-	color: var(--text-normal);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	max-width: 100%;
-	opacity: 0.85;
 }
 
 .chat-profile-chip {
@@ -295,7 +329,7 @@
 	text-transform: capitalize;
 }
 
-/* Keep the active model visible; profile/provider details remain in the tooltip. */
+/* Keep the passive profile summary compact below the interactive toolbar. */
 @media (max-width: 480px) {
 	.chat-profile-chip {
 		max-width: 160px;
@@ -307,6 +341,22 @@
 	.chat-profile-chip {
 		max-width: 132px;
 		padding: 2px 4px;
+	}
+
+	.chat-action-bar {
+		padding-right: 4px;
+		padding-left: 4px;
+	}
+
+	.chat-action-bar-left {
+		gap: 2px;
+	}
+
+	.chat-action-bar-left > .chat-icon-btn,
+	.chat-action-bar-left .chat-council-trigger > .chat-icon-btn,
+	.chat-action-bar-left > .chat-model-switcher,
+	.chat-action-bar-left .chat-council-trigger {
+		min-width: 32px;
 	}
 }
 

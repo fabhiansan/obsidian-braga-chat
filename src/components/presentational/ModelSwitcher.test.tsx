@@ -48,7 +48,9 @@ describe("ModelSwitcher", () => {
 
 		const trigger = screen.getByTestId("model-switcher-trigger");
 		expect(trigger.textContent).toBe("1");
-		expect(trigger.getAttribute("aria-label")).toBe("1 active model");
+		expect(trigger.getAttribute("title")).toContain("openrouter");
+		expect(trigger.getAttribute("title")).toContain("openai/gpt-oss-120b");
+		expect(trigger.getAttribute("aria-label")).toContain("Change model");
 		expect(trigger.getAttribute("aria-expanded")).toBe("false");
 
 		fireEvent.click(trigger);

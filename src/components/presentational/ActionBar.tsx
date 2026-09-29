@@ -22,7 +22,6 @@ interface ActionBarProps {
 	resolvedSelectedProfiles?: ProviderProfile[];
 	modelOverrides?: Record<string, string>;
 	onModelChange?: (profileId: string, model: string) => Promise<void> | void;
-	sessionTitle?: string;
 	zenMode?: boolean;
 	onToggleZenMode?: () => void;
 	participantCount?: number;
@@ -55,7 +54,6 @@ const ActionBar: React.FC<ActionBarProps> = ({
 	resolvedSelectedProfiles,
 	modelOverrides,
 	onModelChange,
-	sessionTitle,
 	zenMode,
 	onToggleZenMode,
 	participantCount,
@@ -66,7 +64,6 @@ const ActionBar: React.FC<ActionBarProps> = ({
 	onToggleSearch,
 	relayEnabled,
 	onToggleRelay,
-	connectedUsers,
 	onToggleRemoteUserDropdown,
 	remoteUserCount,
 }) => {
@@ -75,19 +72,86 @@ const ActionBar: React.FC<ActionBarProps> = ({
 		(plugin.app as any).setting.openTabById(plugin.manifest.id);
 	};
 
-	const showExportMenu = (event: React.MouseEvent) => {
+	const showMoreMenu = (event: React.MouseEvent) => {
 		const menu = new Menu();
+		menu.addItem((item) =>
+			item.setTitle("Session").setIsLabel(true).setSection("session"),
+		);
+		menu.addItem((item) =>
+			item
+				.setTitle("Rename session…")
+				.setIcon("pencil")
+				.setSection("session")
+				.onClick(() => onManualRename()),
+		);
+		menu.addItem((item) =>
+			item
+				.setTitle("Auto-name new chats")
+				.setIcon("text-cursor-input")
+				.setChecked(autoNameSessions)
+				.setSection("session")
+				.onClick(() => onToggleAutoName()),
+		);
+
+		menu.addItem((item) =>
+			item.setTitle("Safety").setIsLabel(true).setSection("safety"),
+		);
+		menu.addItem((item) =>
+			item
+				.setTitle("Auto-approve tool calls")
+				.setIcon("bot")
+				.setChecked(autoApprove)
+				.setSection("safety")
+				.onClick(() => onToggleAutoApprove()),
+		);
+
+		menu.addItem((item) =>
+			item
+				.setTitle("Collaboration")
+				.setIsLabel(true)
+				.setSection("collaboration"),
+		);
+		if (onToggleDebateMode && (participantCount ?? 0) >= 2) {
+			menu.addItem((item) =>
+				item
+					.setTitle("Debate mode")
+					.setIcon("message-circle")
+					.setChecked(debateMode ?? false)
+					.setSection("collaboration")
+					.onClick(() => onToggleDebateMode()),
+			);
+		}
+		if (onToggleRemoteUserDropdown) {
+			menu.addItem((item) =>
+				item
+					.setTitle(`Room members (${remoteUserCount ?? 0})`)
+					.setIcon("users")
+					.setSection("collaboration")
+					.onClick(() => onToggleRemoteUserDropdown()),
+			);
+		}
+		if (onToggleRelay) {
+			menu.addItem((item) =>
+				item
+					.setTitle(
+						relayEnabled ? "Disconnect relay" : "Connect relay",
+					)
+					.setIcon("plug-zap")
+					.setChecked(relayEnabled ?? false)
+					.setSection("collaboration")
+					.onClick(() => onToggleRelay()),
+			);
+		}
+
+		menu.addItem((item) =>
+			item.setTitle("Data").setIsLabel(true).setSection("data"),
+		);
 		menu.addItem((item) =>
 			item
 				.setTitle("Export sessions…")
 				.setIcon("download")
+				.setSection("data")
 				.onClick(() => onExportChat()),
-		);
-		menu.addItem((item) =>
-			item
-				.setTitle("Sync with remote…")
-				.setIcon("sync")
-				.onClick(() => onOpenSync()),
 		);
 		menu.showAtMouseEvent(event.nativeEvent as MouseEvent);
 	};
@@ -99,8 +163,10 @@ const ActionBar: React.FC<ActionBarProps> = ({
 					className="chat-btn chat-icon-btn"
 					onClick={onNewChat}
 					title="New chat"
+					aria-label="New chat"
+					type="button"
 				>
-					<ObsidianIcon icon="plus" size={15} />
+					<ObsidianIcon icon="plus" size={17} />
 				</button>
 				<button
 					data-testid="history-button"
@@ -110,18 +176,28 @@ const ActionBar: React.FC<ActionBarProps> = ({
 					title={
 						canLoad ? "Load previous session" : "No saved sessions"
 					}
+					aria-label={
+						canLoad ? "Load previous session" : "No saved sessions"
+					}
+					type="button"
 				>
-					<ObsidianIcon icon="history" size={15} />
+					<ObsidianIcon icon="history" size={17} />
 				</button>
-				<button
-					className="chat-btn chat-icon-btn"
-					onClick={showExportMenu}
-					title="Export or sync"
-				>
-					<ObsidianIcon icon="download" size={15} />
-				</button>
+				{onToggleSearch && (
+					<button
+						className={`chat-btn chat-icon-btn ${searchVisible ? "is-active" : ""}`}
+						onClick={onToggleSearch}
+						title={searchVisible ? "Hide search" : "Search chats"}
+						aria-label={
+							searchVisible ? "Hide chat search" : "Search chats"
+						}
+						type="button"
+					>
+						<ObsidianIcon icon="search" size={17} />
+					</button>
+				)}
 
-				{/* Model Switcher — positioned in normal toolbar flow */}
+				{/* Keep the active provider/model control immediately before Agents. */}
 				<ModelSwitcher
 					profile={profile}
 					plugin={plugin}
@@ -141,130 +217,56 @@ const ActionBar: React.FC<ActionBarProps> = ({
 									? `${participantCount} agents in chat`
 									: "Group Chat"
 							}
+							aria-label={`Manage agents, ${participantCount ?? 0} selected`}
+							type="button"
 						>
-							<ObsidianIcon icon="users" size={15} />
+							<ObsidianIcon icon="users" size={17} />
 							<span className="chat-council-badge">
 								{participantCount ?? 0}
 							</span>
 						</button>
 					</div>
 				)}
-				{onToggleRemoteUserDropdown && (
-					<div className="chat-remote-users-trigger">
-						<button
-							className={`chat-btn chat-icon-btn ${relayEnabled ? "is-active" : ""}`}
-							onClick={onToggleRemoteUserDropdown}
-							title={
-								connectedUsers?.length
-									? `Room: ${connectedUsers.join(", ")}`
-									: "Room (offline)"
-							}
-						>
-							<ObsidianIcon
-								icon={relayEnabled ? "radio" : "globe"}
-								size={15}
-							/>
-							<span className="chat-remote-users-badge">
-								{remoteUserCount ?? 0}
-							</span>
-						</button>
-					</div>
-				)}
-				{onToggleDebateMode && (participantCount ?? 0) >= 2 && (
-					<button
-						className={`chat-btn chat-icon-btn ${debateMode ? "is-active" : ""}`}
-						onClick={onToggleDebateMode}
-						title={
-							debateMode
-								? "🗣️ Debate mode ON"
-								: "🗣️ Debate mode OFF"
-						}
-					>
-						<ObsidianIcon
-							icon={
-								debateMode ? "message-circle" : "message-square"
-							}
-							size={15}
-						/>
-					</button>
-				)}
-				<button
-					className={`chat-btn chat-icon-btn ${autoApprove ? "is-active" : ""}`}
-					onClick={onToggleAutoApprove}
-					title={
-						autoApprove
-							? "🤖 Auto-approve ON"
-							: "🔒 Manual approval"
-					}
-				>
-					<ObsidianIcon
-						icon={autoApprove ? "bot" : "lock"}
-						size={15}
-					/>
-				</button>
-				{onToggleRelay && (
-					<button
-						className={`chat-btn chat-icon-btn ${relayEnabled ? "is-active" : ""}`}
-						onClick={onToggleRelay}
-						title={
-							relayEnabled
-								? "🔌 Relay connected"
-								: "🔌 Relay disconnected"
-						}
-					>
-						<ObsidianIcon
-							icon={relayEnabled ? "plug" : "plug-zap"}
-							size={15}
-						/>
-					</button>
-				)}
-				<button
-					className={`chat-btn chat-icon-btn ${autoNameSessions ? "is-active" : ""}`}
-					onClick={onToggleAutoName}
-					title={
-						autoNameSessions
-							? "✨ Auto-name ON"
-							: "✨ Auto-name OFF"
-					}
-				>
-					<ObsidianIcon
-						icon={autoNameSessions ? "sparkles" : "type"}
-						size={15}
-					/>
-				</button>
 				<button
 					className="chat-btn chat-icon-btn"
-					onClick={onManualRename}
-					title="Rename session"
+					onClick={onOpenSync}
+					title="Sync with remote"
+					aria-label="Sync with remote"
+					type="button"
 				>
-					<ObsidianIcon icon="wand-2" size={15} />
+					<ObsidianIcon icon="sync" size={17} />
 				</button>
-				{onToggleSearch && (
+				{onToggleZenMode && (
 					<button
-						className={`chat-btn chat-icon-btn ${searchVisible ? "is-active" : ""}`}
-						onClick={onToggleSearch}
-						title={searchVisible ? "Hide search" : "Search chats"}
+						className={`chat-btn chat-icon-btn ${zenMode ? "is-active" : ""}`}
+						onClick={onToggleZenMode}
+						title={zenMode ? "Exit zen mode" : "Zen mode"}
+						aria-label={zenMode ? "Exit zen mode" : "Zen mode"}
+						aria-pressed={zenMode ?? false}
+						type="button"
 					>
-						<ObsidianIcon icon="search" size={15} />
+						<ObsidianIcon icon="maximize" size={17} />
 					</button>
 				)}
 				<button
 					className="chat-btn chat-icon-btn"
 					onClick={openSettings}
 					title="Settings"
+					aria-label="Settings"
+					type="button"
 				>
-					<ObsidianIcon icon="settings" size={15} />
+					<ObsidianIcon icon="settings" size={17} />
 				</button>
-			</div>
-			<div className="chat-action-bar-center">
-				{sessionTitle && (
-					<span
-						className="chat-session-title-display"
-						title={sessionTitle}
-					>
-						{sessionTitle}
-					</span>
-				)}
+				<button
+					className="chat-btn chat-icon-btn"
+					onClick={showMoreMenu}
+					title="More actions"
+					aria-label="More actions"
+					aria-haspopup="menu"
+					type="button"
+				>
+					<ObsidianIcon icon="more-horizontal" size={17} />
+				</button>
 			</div>
 		</div>
 	);

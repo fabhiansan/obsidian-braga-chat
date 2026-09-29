@@ -15,7 +15,6 @@ interface AgentChip {
 interface ChatToolbarProps {
 	plugin: ChatPluginLike;
 	resolvedProfile: ProviderProfile;
-	sessionTitle: string | undefined;
 	selectedAgents: AgentChip[];
 	connectedUsers: string[];
 	selectedProfileIds: Set<string>;
@@ -57,7 +56,6 @@ interface ChatToolbarProps {
 const ChatToolbar: React.FC<ChatToolbarProps> = ({
 	plugin,
 	resolvedProfile,
-	sessionTitle,
 	selectedAgents,
 	connectedUsers,
 	selectedProfileIds,
@@ -119,7 +117,6 @@ const ChatToolbar: React.FC<ChatToolbarProps> = ({
 					resolvedSelectedProfiles={resolvedSelectedProfiles}
 					modelOverrides={modelOverrides}
 					onModelChange={onModelChange}
-					sessionTitle={sessionTitle}
 					zenMode={zenMode}
 					onToggleZenMode={onToggleZenMode}
 					participantCount={participantCount}

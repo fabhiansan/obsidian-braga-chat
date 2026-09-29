@@ -14,8 +14,15 @@
 	box-sizing: border-box;
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
+	justify-content: center;
+	gap: 3px;
 	flex: 0 0 auto;
+	width: 36px;
+	min-width: 36px;
+	max-width: 36px;
+	height: 36px;
+	min-height: 36px;
+	padding: 3px;
 	cursor: pointer;
 	white-space: nowrap;
 	overflow: hidden;
@@ -34,7 +41,7 @@
 .chat-model-switcher-current {
 	display: block;
 	flex: 0 0 auto;
-	font-size: 0.85em;
+	font-size: 0.75em;
 	font-weight: 600;
 	line-height: 1;
 	color: var(--text-normal);
@@ -251,15 +258,14 @@
 	color: var(--text-normal);
 }
 
-/* Keep the selector available on phones; the toolbar itself can scroll horizontally. */
-@media (max-width: 480px) {
-	.chat-model-switcher-trigger {
-		min-width: 26px;
-	}
-}
-
 @media (max-width: 360px) {
 	.chat-model-switcher-trigger {
-		min-width: 26px;
+		gap: 2px;
+		width: 32px;
+		min-width: 32px;
+		max-width: 32px;
+		height: 32px;
+		min-height: 32px;
+		padding: 3px;
 	}
 }

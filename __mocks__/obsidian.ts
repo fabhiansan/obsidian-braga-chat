@@ -34,6 +34,18 @@ export class MenuItem {
 		return this;
 	}
 
+	setSection(_section: string): this {
+		return this;
+	}
+
+	setIsLabel(_isLabel: boolean): this {
+		return this;
+	}
+
+	setChecked(_checked: boolean | null): this {
+		return this;
+	}
+
 	onClick(_callback: () => unknown): this {
 		return this;
 	}
