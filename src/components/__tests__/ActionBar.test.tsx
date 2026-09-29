@@ -65,6 +65,7 @@ describe("ActionBar participant badges", () => {
 		expect(
 			(controls[5] as HTMLButtonElement).getAttribute("aria-label"),
 		).toBe("More actions");
+		expect(container.querySelector(".chat-action-bar-center")).toBeNull();
 		fireEvent.click(controls[5]);
 	});
 

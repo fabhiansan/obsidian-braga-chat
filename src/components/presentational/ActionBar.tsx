@@ -22,7 +22,6 @@ interface ActionBarProps {
 	resolvedSelectedProfiles?: ProviderProfile[];
 	modelOverrides?: Record<string, string>;
 	onModelChange?: (profileId: string, model: string) => Promise<void> | void;
-	sessionTitle?: string;
 	zenMode?: boolean;
 	onToggleZenMode?: () => void;
 	participantCount?: number;
@@ -55,7 +54,6 @@ const ActionBar: React.FC<ActionBarProps> = ({
 	resolvedSelectedProfiles,
 	modelOverrides,
 	onModelChange,
-	sessionTitle,
 	zenMode,
 	onToggleZenMode,
 	participantCount,
@@ -267,16 +265,6 @@ const ActionBar: React.FC<ActionBarProps> = ({
 				>
 					<ObsidianIcon icon="more-horizontal" size={17} />
 				</button>
-			</div>
-			<div className="chat-action-bar-center">
-				{sessionTitle && (
-					<span
-						className="chat-session-title-display"
-						title={sessionTitle}
-					>
-						{sessionTitle}
-					</span>
-				)}
 			</div>
 		</div>
 	);

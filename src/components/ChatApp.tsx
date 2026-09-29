@@ -1049,9 +1049,6 @@ const ChatApp: React.FC<ChatAppProps> = ({
 				<ChatToolbar
 					plugin={plugin}
 					resolvedProfile={resolvedProfile}
-					sessionTitle={
-						sessions.find((s) => s.id === activeSessionId)?.title
-					}
 					selectedAgents={selectedAgents}
 					connectedUsers={connectedUsers}
 					selectedProfileIds={ui.selectedProfileIds}

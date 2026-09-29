@@ -982,36 +982,10 @@
 	}
 }
 
-.chat-action-bar-center {
-	flex: 1;
-	min-width: 0;
-	padding: 0 8px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-@media (max-width: 600px) {
-	.chat-action-bar-center {
-		display: none;
-	}
-}
-
 .chat-action-bar-right {
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
-}
-
-.chat-session-title-display {
-	font-size: 0.85em;
-	font-weight: 600;
-	color: var(--text-normal);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	max-width: 100%;
-	opacity: 0.85;
 }
 
 .chat-profile-chip {
@@ -5717,32 +5691,18 @@
 	box-sizing: border-box;
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
-	flex: 0 1 auto;
-	width: min(168px, 36vw);
-	min-width: 92px;
-	max-width: 168px;
+	justify-content: center;
+	gap: 3px;
+	flex: 0 0 auto;
+	width: 36px;
+	min-width: 36px;
+	max-width: 36px;
+	height: 36px;
 	min-height: 36px;
-	padding: 5px 8px;
+	padding: 3px;
 	cursor: pointer;
 	white-space: nowrap;
 	overflow: hidden;
-}
-
-.chat-model-switcher-provider {
-	flex: 0 0 auto;
-	max-width: 52px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	text-transform: capitalize;
-	color: var(--text-muted);
-	font-size: 0.72em;
-}
-
-.chat-model-switcher-separator,
-.chat-model-switcher-chevron {
-	flex: 0 0 auto;
-	color: var(--text-faint);
 }
 
 .chat-model-switcher-provider-dot {
@@ -5757,12 +5717,8 @@
 
 .chat-model-switcher-current {
 	display: block;
-	flex: 1 1 auto;
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	font-size: 0.85em;
+	flex: 0 0 auto;
+	font-size: 0.75em;
 	font-weight: 600;
 	line-height: 1;
 	color: var(--text-normal);
@@ -5979,21 +5935,14 @@
 	color: var(--text-normal);
 }
 
-/* The combined provider/model selector stays legible without making the row scroll. */
-@media (max-width: 480px) {
-	.chat-model-switcher-trigger {
-		width: min(150px, 38vw);
-		min-width: 92px;
-	}
-}
-
 @media (max-width: 360px) {
 	.chat-model-switcher-trigger {
-		width: min(132px, 38vw);
-		min-width: 84px;
-	}
-
-	.chat-model-switcher-provider {
-		max-width: 42px;
+		gap: 2px;
+		width: 32px;
+		min-width: 32px;
+		max-width: 32px;
+		height: 32px;
+		min-height: 32px;
+		padding: 3px;
 	}
 }

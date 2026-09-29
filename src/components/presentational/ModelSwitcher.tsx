@@ -398,9 +398,7 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 	// Trigger label
 	const activeModelCount = Math.max(1, selectedProfileIds.size);
 	const currentModel = isMultiAgent ? activeProfile.model : selectedModel;
-	const triggerLabel = isMultiAgent
-		? `${activeModelCount} models`
-		: currentModel;
+	const triggerLabel = String(activeModelCount);
 	const toggleOpen = () => {
 		setIsOpen((prev) => {
 			if (prev) {
@@ -428,7 +426,7 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 				title={
 					isMultiAgent
 						? `${selectedProfileIds.size} agents — click to manage models`
-						: `${profile.provider} / ${profile.model} — click to change model`
+						: `${profile.provider} / ${currentModel} — click to change model`
 				}
 				type="button"
 			>
@@ -437,23 +435,9 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 					size={14}
 					className="chat-model-switcher-model-icon"
 				/>
-				<span className="chat-model-switcher-provider">
-					{isMultiAgent ? "Models" : profile.provider}
-				</span>
-				<span
-					className="chat-model-switcher-separator"
-					aria-hidden="true"
-				>
-					·
-				</span>
 				<span className="chat-model-switcher-current">
 					{triggerLabel}
 				</span>
-				<ObsidianIcon
-					icon="chevron-down"
-					size={12}
-					className="chat-model-switcher-chevron"
-				/>
 			</button>
 
 			{isOpen && typeof document !== "undefined" && document.body

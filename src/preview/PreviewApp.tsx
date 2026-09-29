@@ -120,7 +120,6 @@ const PreviewApp: React.FC = () => {
 					<ChatToolbar
 						plugin={plugin}
 						resolvedProfile={profiles[0]}
-						sessionTitle={session.title}
 						selectedAgents={profiles
 							.filter((profile) =>
 								selectedProfiles.has(profile.id),
