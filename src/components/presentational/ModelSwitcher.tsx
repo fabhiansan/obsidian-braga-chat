@@ -432,7 +432,7 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 			>
 				<ObsidianIcon
 					icon="cpu"
-					size={14}
+					size={16}
 					className="chat-model-switcher-model-icon"
 				/>
 				<span className="chat-model-switcher-current">

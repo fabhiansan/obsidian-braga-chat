@@ -166,7 +166,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
 					aria-label="New chat"
 					type="button"
 				>
-					<ObsidianIcon icon="plus" size={15} />
+					<ObsidianIcon icon="plus" size={17} />
 				</button>
 				<button
 					data-testid="history-button"
@@ -181,7 +181,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
 					}
 					type="button"
 				>
-					<ObsidianIcon icon="history" size={15} />
+					<ObsidianIcon icon="history" size={17} />
 				</button>
 				{onToggleSearch && (
 					<button
@@ -193,7 +193,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
 						}
 						type="button"
 					>
-						<ObsidianIcon icon="search" size={15} />
+						<ObsidianIcon icon="search" size={17} />
 					</button>
 				)}
 
@@ -220,7 +220,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
 							aria-label={`Manage agents, ${participantCount ?? 0} selected`}
 							type="button"
 						>
-							<ObsidianIcon icon="users" size={15} />
+							<ObsidianIcon icon="users" size={17} />
 							<span className="chat-council-badge">
 								{participantCount ?? 0}
 							</span>
@@ -234,7 +234,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
 					aria-label="Sync with remote"
 					type="button"
 				>
-					<ObsidianIcon icon="sync" size={15} />
+					<ObsidianIcon icon="sync" size={17} />
 				</button>
 				{onToggleZenMode && (
 					<button
@@ -245,7 +245,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
 						aria-pressed={zenMode ?? false}
 						type="button"
 					>
-						<ObsidianIcon icon="maximize" size={15} />
+						<ObsidianIcon icon="maximize" size={17} />
 					</button>
 				)}
 				<button
@@ -255,7 +255,7 @@ const ActionBar: React.FC<ActionBarProps> = ({
 					aria-label="Settings"
 					type="button"
 				>
-					<ObsidianIcon icon="settings" size={15} />
+					<ObsidianIcon icon="settings" size={17} />
 				</button>
 				<button
 					className="chat-btn chat-icon-btn"
