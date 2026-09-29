@@ -2,6 +2,23 @@
 
 General chat UI/UX features that apply to both 1:1 and group chat modes.
 
+## Main Chat Toolbar (2026-09-30)
+
+The responsive toolbar uses a compact main row with evenly distributed,
+touch-friendly controls. New chat, history, search, model selection, Agents,
+and overflow are in the main row; model selection uses the compact CPU/count
+button before Agents rather than putting the model name on the button. Sync,
+Zen mode, and Settings are direct toolbar actions. The provider/model identity
+display remains a separate passive status bar. Overflow contains bulk session
+export and less-frequent actions; per-chat copy/export remain in Chat History.
+On mobile, controls retain a 44px touch height and larger icons. The user
+visually approved desktop and mobile layouts.
+
+Implementation: `ChatToolbar.tsx`, `presentational/ActionBar.tsx`,
+`presentational/ModelSwitcher.tsx`, `styles/_chat.css`, and
+`styles/_model-switcher.css` (with generated `styles.css`). Merged in PR #9 at
+`62b2db5`.
+
 ---
 
 ## Profile Selection

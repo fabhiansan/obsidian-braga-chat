@@ -1,5 +1,25 @@
 # Active Context
 
+### 2026-09-30 — Android link fix and approved Chat Lab toolbar
+
+- T28 is complete: `15b0f8e` preserves Obsidian-rendered anchor nodes and uses
+  capture-phase delegation from the stable message container. Focused tests
+  cover anchor identity, event ordering, and idempotence; the user confirmed
+  the Android crash is fixed. Alias and external URL variants were not
+  separately reported as retested.
+- PR #9 merged the responsive Chat Lab toolbar into `main` at `62b2db5`. The
+  CPU/count model button precedes Agents; Sync, Zen, and Settings are direct
+  actions; bulk session export is under More, while per-chat copy/export stays
+  in Chat History. The provider/model identity row remains passive and
+  separate. The user approved the desktop and mobile layouts, including the
+  larger mobile controls.
+- Focused toolbar/model tests passed 12/12. The full test run reported 575
+  passed and one unchanged `useMessageActions` AbortSignal assertion failure.
+  No release/version bump was made.
+- Source branch `main`, head `62b2db599decc91288e94436610a8993ab1af635`.
+  See today's session record, T28, T58, and the toolbar/sync implementation
+  notes.
+
 ### 2026-09-29 — Plugin self-description, chat tables, and link-crash follow-up
 
 - `get_plugin_info` now returns manifest creator/contact information and active

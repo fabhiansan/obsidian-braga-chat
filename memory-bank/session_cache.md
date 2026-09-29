@@ -1,5 +1,24 @@
 # Session Cache
 
+## 2026-09-30 — Android link fix and Chat Lab toolbar merge
+
+- T28 complete: commit `15b0f8e` preserves Obsidian-rendered anchor identity
+  and delegates clicks in capture phase from the stable message container.
+  Focused tests cover node identity, event ordering, and listener
+  idempotence; the user confirmed the Android crash fix works. Alias and
+  external URL variants were not separately reported as retested.
+- Toolbar PR #9 merged into `main` at `62b2db5`. Compact CPU/count model
+  selector is before Agents; Sync, Zen, and Settings are direct actions; bulk
+  session export is under More, while per-chat copy/export stays in Chat
+  History. Larger 44px mobile controls were visually approved.
+- Verification: toolbar/model tests 12/12 passed. Full suite: 575 passed,
+  one unchanged `useMessageActions` AbortSignal assertion failed. No release
+  bump. Source branch `main`, source commit `62b2db599decc91288e94436610a8993ab1af635`.
+- Updated T28, T58, toolbar/sync design notes, task registry, changelog, and
+  implementation notes. No local Beads database; no new task ID created.
+- Next: no required work for the reported crash or toolbar. If revisiting
+  T28 coverage, separately exercise aliased and external links.
+
 ## 2026-09-29 — Plugin self-description, chat UI, and link diagnostics
 
 - Source commits: `1597a28` adds creator/contact and active capability details

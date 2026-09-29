@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased — 2026-09-30
+
+### Fixed
+
+- Android note-link clicks no longer replace Obsidian-rendered anchor nodes;
+  capture-phase delegation on the stable message container fixes the reported
+  crash. The user confirmed it works (`15b0f8e`, T28). Alias and external URL
+  variants were not separately reported as retested.
+
+### Changed
+
+- Chat Lab now has a compact overflow toolbar with direct Sync, Zen mode, and
+  Settings actions; the CPU/count model selector sits before Agents. Bulk
+  session export is under More, while per-chat copy/export remains in Chat
+  History. Mobile controls retain a 44px touch height. User visually approved
+  desktop and mobile layouts (PR #9, `62b2db5`).
+- The branch was merged into `main`; source behavior is confirmed by user
+  feedback. Focused toolbar/model tests passed (12/12); the full suite had
+  575 passing tests and one unchanged `useMessageActions` AbortSignal assertion
+  failure.
+
 ## Unreleased — 2026-09-29
 
 ### Added

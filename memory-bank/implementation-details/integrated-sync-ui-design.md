@@ -315,7 +315,7 @@ the latest active row.
 
 ## Migration Notes
 
-- Existing `SyncSidebarView` users: The sidebar will disappear on next plugin load. Users need to open sync via the export dropdown.
+- Existing `SyncSidebarView` users: the sidebar was removed; Sync is now opened from the direct Chat Lab toolbar button (the original export-dropdown entry point is historical).
 - `SyncProgressModal` is kept as fallback: `triggerSync(dryRun, { useModal: true })` still works
 - No data migration needed — sync engine and cache are unchanged
 
@@ -350,3 +350,12 @@ elapsed timer starts when the user confirms Sync, not when the review modal is
 opened. Session-title rows use the plain metadata manifest, and downloaded
 session refreshes preserve in-memory messages or read the persisted file on
 open when lazy hydration state has already been consumed.
+
+## 2026-09-30 Toolbar Contract
+
+The original export-dropdown Sync entry point described above is superseded by
+the current Chat Lab toolbar. Sync is now a direct toolbar action; bulk session
+export is in the overflow menu. Copy and export actions inside Chat History
+remain scoped to an individual chat. This was a toolbar/UI change only and did
+not alter the sync panel, engine, or storage behavior. See
+`chat-ui-features.md` for the complete toolbar arrangement.

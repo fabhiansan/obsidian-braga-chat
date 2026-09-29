@@ -1,6 +1,17 @@
 # Edit History
 
-*Last Updated: 2026-09-29 20:10:19 IST*
+*Last Updated: 2026-09-30 03:45:08 IST*
+
+### 2026-09-30
+#### 03:45:08 IST - T28/T58: Record mobile link fix and toolbar merge
+- Updated `memory-bank/tasks/T28.md` and `memory-bank/tasks.md` - Closed the reported Android link-click crash after user confirmation; kept untested alias/external variants explicit.
+- Updated `memory-bank/implementation-details/note-link-interception.md` - Replaced the stale unresolved-crash status with the stable-container capture-phase fix and its verification boundary.
+- Updated `memory-bank/tasks/T58.md` and `memory-bank/implementation-details/integrated-sync-ui-design.md` - Recorded direct toolbar Sync access and clarified that the UI change did not alter sync behavior.
+- Updated `memory-bank/implementation-details/chat-ui-features.md` - Documented the approved toolbar layout, model button placement, overflow/export scope, and mobile control sizing.
+- Updated `memory-bank/changelog.md`, `activeContext.md`, and `session_cache.md` - Recorded merged source state, user acceptance, verification results, and remaining coverage boundary.
+- Created `memory-bank/sessions/2026-09-30-mobile-link-and-chat-toolbar.md` - Captured session scope, source state, verification, and follow-up.
+- Created `memory-bank/edits/2026-09-30/034508-T28-T58-mobile-link-and-toolbar-closeout.md` - Added the canonical edit chunk for this Memory Bank update.
+- Refreshed this generated-view entry directly because no history generator is present in the repository.
 
 ### 2026-09-29
 #### 20:10:19 IST - T28: Record session changes and unresolved loaded-chat link crash

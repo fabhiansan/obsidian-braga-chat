@@ -1,7 +1,7 @@
 # Memory Bank - Sage Workspace
 
 *Created: 2026-08-07 23:23:17 IST*
-*Last Updated: 2026-09-28 12:35:16 IST*
+*Last Updated: 2026-09-30 03:45:08 IST*
 
 ## Overview
 
@@ -20,7 +20,6 @@ This is the Memory Bank for the Sage (灵剑) OpenClaw workspace.
 | T16b | Addressable Agent Participants and Unified `@` Resolution | 🔄 | HIGH | 2026-08-31 | T16, T43 | [Details](tasks/T16b.md) |
 | T17 | Advanced Vault Tools — Backlinks, YAML, Bulk Ops, Templating, Maintenance | ⏸️ | HIGH | 2026-05-15 | T13, T14, T60a, T60c | [Details](tasks/T17.md) |
 | T17a | Optional Dataview DQL Query Tool | 🔄 | MEDIUM | 2026-09-27 | T17, T13, T14, T60a, T60c | [Details](tasks/T17a.md) |
-| T28 | Fix Obsidian Note Link Click Crash | 🔄 | HIGH | 2026-07-28 | T4, T13 | [Details](tasks/T28.md) |
 | T38 | Tool Approval Policy Framework | ❌ | — | 2026-08-05 | — | [Details](tasks/T38.md) |
 | T39 | Git Integration Provider (obsidian-git → obsidian-ai) | ✅ | HIGH | 2026-08-05 | 2026-09-18 | T39a, T39b | [Details](tasks/T39.md) |
 | T39a | Provider API Host, Lifecycle, and Tool-Policy Boundary | ✅ | HIGH | 2026-08-05 | 2026-09-18 | T39, T13, T38 | [Details](tasks/T39a.md) |
@@ -74,6 +73,7 @@ This is the Memory Bank for the Sage (灵剑) OpenClaw workspace.
 | T2 | Conversation Chain & Memory | ✅ | HIGH | 2026-05-02 | 2026-05-02 | T1 | [Details](tasks/T2.md) |
 | T21 | CLI Test Harness for AI Features | ✅ | MEDIUM | 2026-05-25 | 2026-05-25 | T13, T19, T4 | [Details](tasks/T21.md) |
 | T24 | SessionStorage — JSONL Chat Persistence | ✅ | HIGH | 2026-06-14 | 2026-06-14 | — | [Details](tasks/T24.md) |
+| T28 | Fix Obsidian Note Link Click Crash | ✅ | HIGH | 2026-07-28 | 2026-09-30 | T4, T13 | [Details](tasks/T28.md) |
 | T23 | Settings.ts Decomposition | ✅ | HIGH | 2026-05-28 | 2026-05-28 | — | [Details](tasks/T23.md) |
 | T3 | Context & Mentions System | ✅ | HIGH | 2026-05-02 | 2026-05-02 | T1 | [Details](tasks/T3.md) |
 | T34 | Settings Panel UI/UX Improvements | ✅ | MEDIUM | 2026-08-07 | 2026-08-07 | - | [Details](tasks/T34.md) |
