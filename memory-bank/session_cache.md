@@ -1,5 +1,20 @@
 # Session Cache
 
+## 2026-10-01 — Chat component map and primary UI references
+
+- T73 is active; T73a's repository-neutral baseline and mockup deliverable is
+  complete. The map now links the primary multi-tab, single-chat, and optional
+  features references. The multi-tab attachment was already stored byte for
+  byte; the other two are saved under descriptive names in
+  `implementation-details/assets/`.
+- Detailed message-anatomy mockups remain supplemental. Provider/model is
+  visible in the references, while the current message bubble displays only
+  model name; this remains a source reconciliation gap under T73.
+- Text Memory Bank is authoritative. Do not regenerate `edit_history.md` from
+  the September 22 SQLite snapshot without verified backfill equivalence.
+- No product code/tests changed. See
+  `sessions/2026-10-01-chat-component-capability-map-references.md`.
+
 ## 2026-09-30 — Android link fix and Chat Lab toolbar merge
 
 - T28 complete: commit `15b0f8e` preserves Obsidian-rendered anchor identity

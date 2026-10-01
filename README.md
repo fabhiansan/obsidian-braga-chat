@@ -163,6 +163,10 @@ Bring your own keys. No data leaves your machine unless you choose it to.
 - **Abort** — Cancel streaming mid-generation.
 - **Retry** — Regenerate a response with one click.
 
+For the complete, implementation-independent capability and behavior map of
+the chat component, see the
+[Chat Component Capability Map](memory-bank/implementation-details/chat-component-capability-map.md).
+
 ### Auto-Updater (v1.2.5+)
 
 Stay current without manual downloads:

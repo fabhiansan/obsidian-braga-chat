@@ -1,5 +1,9 @@
 # Chat UI Features
 
+> This file contains selected implementation notes and historical feature
+> addenda. The complete, current, code-agnostic specification is the
+> [Chat Component Capability Map](chat-component-capability-map.md).
+
 General chat UI/UX features that apply to both 1:1 and group chat modes.
 
 ## Main Chat Toolbar (2026-09-30)

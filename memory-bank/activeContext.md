@@ -1,5 +1,20 @@
 # Active Context
 
+### 2026-10-01 — T73 Chat component map and primary UI references
+
+- T73 remains active for feature/source reconciliation; T73a is complete for
+  the repository-neutral baseline and mockup set.
+- The canonical map identifies the supplied mobile multi-tab and single-chat
+  images, plus the optional-features overview, as primary visual references.
+  The multi-tab attachment already matched its repository asset exactly; the
+  other two were saved under descriptive names. Detailed message-anatomy
+  images remain supplementary.
+- Provider/model appears together in the references, but the current bubble
+  renders model name only. Keep this as a documented implementation gap, not a
+  claim of current behavior.
+- Next: continue T73's source reconciliation and review feature-level gaps.
+  No product source or tests changed in this documentation/assets update.
+
 ### 2026-09-30 — Android link fix and approved Chat Lab toolbar
 
 - T28 is complete: `15b0f8e` preserves Obsidian-rendered anchor nodes and uses

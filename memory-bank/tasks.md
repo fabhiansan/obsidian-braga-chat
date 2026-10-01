@@ -57,6 +57,8 @@ This is the Memory Bank for the Sage (灵剑) OpenClaw workspace.
 | T64d | Live Estimator Validation | ✅ | MEDIUM | 2026-08-27 | 2026-08-29 | T64, T6a | [Details](tasks/T64d.md) |
 | T70 | Active Chat Model Identity and Switcher Consistency | ✅ | HIGH | 2026-09-02 | 2026-09-02 | T9, T15; builds on T35, T36 | [Details](tasks/T70.md) |
 | T71 | Chat View Scroll Performance and Streaming Follow | ✅ | HIGH | 2026-09-19 | 2026-09-19 | T24, T15 | [Details](tasks/T71.md) |
+| T73 | Chat Component Capability Map and Feature Coverage | 🔄 | HIGH | 2026-10-01 | — | — | [Details](tasks/T73.md) |
+| T73a | Repository-Neutral Chat Model and UI Mockups | ✅ | HIGH | 2026-10-01 | T73 | [Details](tasks/T73a.md) |
 | T24a | Global Search Scope over Index-Only Sessions | ⏸️ | MEDIUM | 2026-09-19 | T24 | [Details](tasks/T24a.md) |
 | T18a | Bounded Web Page Retrieval Tool | ⏸️ | MEDIUM | 2026-08-25 | T18, T60a, T60c | [Details](tasks/T18a.md) |
 | T50 | OpenAI Responses API / Threads Support | 🔄 | MEDIUM | — | T14 | [Details](tasks/T50.md) |
@@ -312,8 +314,8 @@ T70: Active Chat Model Identity and Switcher Consistency
 
 ## Status Summary
 
-- **Active**: 38
-- **Completed**: 46
+- **Active**: 39
+- **Completed**: 47
 - **Paused**: 3
 - **Disabled**: 1
-- **Total**: 88
+- **Total**: 90
