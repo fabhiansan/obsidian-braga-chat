@@ -126,6 +126,60 @@ export function buildCliArgs(kind: CliAgentKind, model: string): string[] {
 	}
 }
 
+/** Models offered in the model picker. The first entry keeps the CLI's own default. */
+export async function listCliModels(
+	kind: CliAgentKind,
+	binary?: string,
+): Promise<string[]> {
+	try {
+		switch (kind) {
+			case "claude-code":
+				return [CLI_DEFAULT_MODEL, "sonnet", "opus", "haiku"];
+			case "opencode": {
+				// One "provider/model" per line, for every provider opencode is logged into.
+				const stdout = await runCli(binary?.trim() || CLI_DEFAULT_BINARY.opencode, ["models"]);
+				const ids = stdout
+					.split("\n")
+					.map((line) => line.trim())
+					.filter((line) => /^[\w.-]+\/\S+$/.test(line));
+				return [CLI_DEFAULT_MODEL, ...ids];
+			}
+			case "codex": {
+				// Codex has no list command; it caches the account's models here.
+				const { readFile } = require("fs/promises") as typeof import("fs/promises");
+				const home = process.env.CODEX_HOME || `${process.env.HOME}/.codex`;
+				const cache = JSON.parse(await readFile(`${home}/models_cache.json`, "utf8"));
+				const ids = (cache.models ?? [])
+					.filter((m: any) => m?.slug && m.visibility !== "hide")
+					.sort((a: any, b: any) => (a.priority ?? 0) - (b.priority ?? 0))
+					.map((m: any) => String(m.slug));
+				return [CLI_DEFAULT_MODEL, ...ids];
+			}
+		}
+	} catch (error) {
+		console.warn(`[braga-chat] Could not list ${CLI_LABEL[kind]} models`, error);
+		return [CLI_DEFAULT_MODEL];
+	}
+}
+
+async function runCli(binary: string, args: string[]): Promise<string> {
+	const PATH = await resolveShellPath();
+	const { execFile } = require("child_process") as typeof import("child_process");
+	return new Promise((resolve, reject) => {
+		execFile(
+			binary,
+			args,
+			{
+				cwd: workspaceDir ?? undefined,
+				env: { ...process.env, PATH },
+				timeout: 15000,
+				maxBuffer: 10 * 1024 * 1024,
+			},
+			(error, stdout) => (error ? reject(error) : resolve(String(stdout))),
+		);
+	});
+}
+
 function partsToText(content: unknown): string {
 	if (typeof content === "string") return content;
 	if (!Array.isArray(content)) return "";

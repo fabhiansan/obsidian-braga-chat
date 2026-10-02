@@ -13,6 +13,7 @@ import { getProviderColor } from "../../settings";
 import { ChatPluginLike } from "../../views/ObsidianAIChatView";
 import ObsidianIcon from "../ObsidianIcon";
 import { getRecentModels, rememberRecentModel } from "../../lib/recentModels";
+import { isCliAgentProvider } from "../../api/cliAgents/CliAgentLanguageModel";
 
 // ─── Fallback model lists per provider ─────────────────────────────
 
@@ -379,6 +380,20 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 			setFetching(false);
 		}
 	}, [activeProfile, plugin]);
+
+	// Braga fork: CLI agents list their models locally and cheaply, so fill the
+	// list on first open instead of waiting for a manual refresh.
+	useEffect(() => {
+		if (
+			isOpen &&
+			!fetching &&
+			isCliAgentProvider(activeProfile.provider) &&
+			!activeProfile.modelCache?.models?.length &&
+			!models[activeProfile.id]
+		) {
+			void handleRefresh();
+		}
+	}, [isOpen, activeProfile.id]);
 
 	const handleOpenAgentModels = useCallback((agentId: string) => {
 		setSubmenuAgentId(agentId);

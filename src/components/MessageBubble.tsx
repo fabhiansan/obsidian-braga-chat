@@ -3,6 +3,7 @@ import { App, Notice, TFile } from "obsidian";
 import { ChatMessage, ContextItem, ContentPart, Attachment } from "../types";
 import MessageActions from "./presentational/MessageActions";
 import ToolCallNotification from "./presentational/ToolCallNotification";
+import ToolCallGroup from "./presentational/ToolCallGroup";
 import { sanitizeHtmlForRenderer } from "../lib/sanitizeHtml";
 import { makeMarkdownTablesScrollable } from "./scrollableMarkdownTables";
 import {
@@ -311,6 +312,22 @@ function formatContextItems(items: ContextItem[]): string {
 		.join(", ");
 }
 
+type PartBlock =
+	| Extract<ContentPart, { type: "text" }>
+	| { type: "tool_group"; calls: Extract<ContentPart, { type: "tool_call" }>[] };
+
+/** Braga fork: merges runs of consecutive tool calls into one block. */
+function groupToolCalls(parts: ContentPart[]): PartBlock[] {
+	const blocks: PartBlock[] = [];
+	for (const part of parts) {
+		const last = blocks[blocks.length - 1];
+		if (part.type === "text") blocks.push(part);
+		else if (last?.type === "tool_group") last.calls.push(part);
+		else blocks.push({ type: "tool_group", calls: [part] });
+	}
+	return blocks;
+}
+
 /** Strips model thinking/reasoning tag blocks from text */
 export function stripThinkingTags(text: string): string {
 	return text
@@ -483,7 +500,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 	return (
 		<div
 			ref={bubbleRef}
-			className={`chat-bubble chat-bubble-${message.role}${message.agentId ? " chat-bubble-agent" : ""}${message.isError ? " chat-bubble-error" : ""}${isActive ? " is-active" : ""}${selected ? " chat-bubble-selected" : ""}${isStreaming ? " chat-bubble-streaming" : ""}`}
+			className={`chat-bubble chat-bubble-${message.role}${message.remote ? " is-remote" : ""}${message.agentId ? " chat-bubble-agent" : ""}${message.isError ? " chat-bubble-error" : ""}${isActive ? " is-active" : ""}${selected ? " chat-bubble-selected" : ""}${isStreaming ? " chat-bubble-streaming" : ""}`}
 			style={
 				message.agentColor && message.role === "assistant"
 					? ({
@@ -563,24 +580,36 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 				/>
 			) : (
 				<div className="chat-bubble-content-inline">
-					{renderParts!.map((part, i) =>
-						part.type === "text" ? (
+					{groupToolCalls(renderParts!).map((block, i) =>
+						block.type === "text" ? (
 							<TextSegment
 								key={i}
-								content={part.content}
+								content={block.content}
 								app={app}
 								renderMarkdown={renderMarkdown}
 								showThinking={showThinking}
 								contextItems={message.contextItems}
 							/>
-						) : (
+						) : block.calls.length === 1 ? (
 							<ToolCallNotification
 								key={i}
-								toolCall={part.call}
-								result={part.result}
-								isPending={!part.result}
+								toolCall={block.calls[0].call}
+								result={block.calls[0].result}
+								isPending={!block.calls[0].result}
 								onOpenPastSession={onOpenPastSession}
 							/>
+						) : (
+							<ToolCallGroup key={i} calls={block.calls}>
+								{block.calls.map((c, j) => (
+									<ToolCallNotification
+										key={j}
+										toolCall={c.call}
+										result={c.result}
+										isPending={!c.result}
+										onOpenPastSession={onOpenPastSession}
+									/>
+								))}
+							</ToolCallGroup>
 						),
 					)}
 				</div>

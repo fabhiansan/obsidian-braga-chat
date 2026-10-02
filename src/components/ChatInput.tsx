@@ -12,6 +12,7 @@ import {
 	createExternalAttachment,
 } from "../context/AttachmentEngine";
 import { ChatPluginLike } from "../views/ObsidianAIChatView";
+import ObsidianIcon from "./ObsidianIcon";
 
 interface ChatInputProps {
 	app: App;
@@ -742,7 +743,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 								onClick={onStop}
 								title="Stop"
 							>
-								⏹
+								<ObsidianIcon icon="square" size={14} />
 							</button>
 						) : isEditing ? (
 							<div className="chat-input-actions">
@@ -773,7 +774,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 									}
 									title="Resubmit"
 								>
-									▶
+									<ObsidianIcon icon="arrow-up" size={16} />
 								</button>
 								<button
 									className="chat-btn chat-send-icon"
@@ -785,7 +786,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 									}}
 									title="Cancel"
 								>
-									✕
+									<ObsidianIcon icon="x" size={16} />
 								</button>
 							</div>
 						) : (
@@ -814,7 +815,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 								}
 								title="Send"
 							>
-								▶
+								<ObsidianIcon icon="arrow-up" size={16} />
 							</button>
 						)}
 					</div>
@@ -857,7 +858,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 								title="Attach file"
 								type="button"
 							>
-								📎
+								<ObsidianIcon icon="paperclip" size={15} />
 							</button>
 							{showAttachDropdown && (
 								<div className="chat-attach-dropdown">
@@ -916,7 +917,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 								}
 								type="button"
 							>
-								{thinkingEnabled ? "🧠" : "💤"}
+								<ObsidianIcon icon="brain" size={15} />
 							</button>
 						)}
 						{tokenTotal && (

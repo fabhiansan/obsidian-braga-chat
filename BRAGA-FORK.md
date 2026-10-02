@@ -10,6 +10,8 @@ for the CFMS RFID PT MIP vault (submodule `tools/obsidian-braga-chat`). License 
 | Plugin id `braga-chat`, desktop only, view type `braga-chat-view` | `manifest.json`, `src/views/ObsidianAIChatView.ts` |
 | No automatic update checks; updater points at this fork | `src/main.ts`, `src/updater/PluginUpdater.ts` |
 | Providers `claude-code`, `codex`, `opencode`: run the local CLI with its own login (subscription), in the vault folder | `src/api/cliAgents/`, provider switches in `src/settings.ts`, `src/api/providers.ts`, `src/components/ProfileCard.tsx` |
+| Chat skin: quiet toolbar, underline tabs, right-aligned own messages, open assistant replies, one rounded composer, icons instead of emoji | `styles/_braga.css` (concatenated last), `src/components/ChatInput.tsx` |
+| Runs of 2+ tool calls fold into one "Used N tools" row | `src/components/presentational/ToolCallGroup.tsx`, `src/components/MessageBubble.tsx` |
 | Relay room: messages and AI answers are shared with the room; `@handle` picks whose agent answers | `src/sync/relayAgents.ts`, `src/components/ChatApp.tsx`, `src/agent/turnLifecycle.ts` (`SendOptions`), `src/sync/WebSocketSyncAdapter.ts` |
 
 Fork edits in upstream files are marked `Braga fork` in comments.
@@ -18,6 +20,7 @@ Fork edits in upstream files are marked `Braga fork` in comments.
 
 - The profile's **CLI path** field holds the executable (default `claude`, `codex`, `opencode`). The login shell `PATH` is used, so Homebrew and mise installs are found.
 - Model `default` lets the CLI pick; otherwise it is passed as `--model` / `-m`.
+- The model picker fills itself on first open: `opencode models`, Codex's `~/.codex/models_cache.json` (or `$CODEX_HOME`), and the Claude aliases `sonnet` / `opus` / `haiku`. Use the picker's refresh button after logging into a new opencode provider.
 - Permissions: Claude Code `--permission-mode acceptEdits` (edits yes, shell commands no), Codex `--sandbox workspace-write`, opencode `--auto`.
 - Each request is a fresh CLI run with the whole transcript as the prompt.
 

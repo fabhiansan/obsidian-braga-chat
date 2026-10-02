@@ -11,6 +11,7 @@ const partials = [
 	'settings',
 	'sync',
 	'model-switcher',
+	'braga', // Braga fork: keep last so it overrides upstream styles
 ];
 
 const contents = await Promise.all(

@@ -9,7 +9,7 @@ import { getDefaultEndpoint, ProviderProfile } from "../settings";
 import type { ProviderTokenUsage } from "../types";
 import {
 	CliAgentLanguageModel,
-	CLI_DEFAULT_MODEL,
+	listCliModels,
 } from "./cliAgents/CliAgentLanguageModel";
 
 export function normalizeProviderUsage(usage: {
@@ -296,12 +296,9 @@ export async function fetchProviderModels(
 			}
 
 			case "claude-code":
-				return [CLI_DEFAULT_MODEL, "sonnet", "opus", "haiku"];
-
 			case "codex":
 			case "opencode":
-				// The CLI's own config picks the model; type a name to override.
-				return [CLI_DEFAULT_MODEL];
+				return listCliModels(profile.provider, profile.customURL);
 
 			case "ollama": {
 				const baseURL =
