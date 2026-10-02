@@ -13,7 +13,7 @@ interface ChatLogger {
 	log(level: string, ...args: unknown[]): void;
 }
 
-export const CHAT_VIEWTYPE = "obsidian-ai-chat-view";
+export const CHAT_VIEWTYPE = "braga-chat-view";
 
 export interface ChatPluginLike {
 	app: App;

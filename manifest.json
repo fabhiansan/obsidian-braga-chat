@@ -1,10 +1,10 @@
 {
-	"id": "chat-lab",
-	"name": "Chat Lab AI",
+	"id": "braga-chat",
+	"name": "Braga Chat",
 	"version": "1.6.0",
 	"minAppVersion": "1.4.5",
-	"description": "AI-powered chat with multi-device relay, agentic tools, and collaborative conversation.",
-	"author": "space-cadet",
-	"authorUrl": "https://github.com/space-cadet/",
-	"isDesktopOnly": false
+	"description": "Braga fork of Chat Lab AI: shared team chat over a relay, with Claude Code, Codex and opencode as agents.",
+	"author": "space-cadet, Braga",
+	"authorUrl": "https://github.com/fabhiansan/obsidian-braga-chat",
+	"isDesktopOnly": true
 }

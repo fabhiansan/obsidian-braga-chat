@@ -1,3 +1,7 @@
+import {
+	CLI_DEFAULT_BINARY,
+	CLI_DEFAULT_MODEL,
+} from "./api/cliAgents/CliAgentLanguageModel";
 import { cursorPrompt, selectionPrompt } from "./default_prompts";
 import { SlashCommand } from "./modules/commands/source";
 import { migrateRecentModelsToProviders } from "./lib/recentModels";
@@ -51,7 +55,10 @@ export type ProviderType =
 	| "deepseek"
 	| "kimi"
 	| "openrouter"
-	| "agent";
+	| "agent"
+	| "claude-code"
+	| "codex"
+	| "opencode";
 
 export type WebSearchProvider =
 	| "brave"
@@ -255,6 +262,9 @@ export const getProviderColor = (provider: ProviderType): string => {
 		azure: "#0078d4",
 		custom: "#8b5cf6",
 		agent: "#f59e0b",
+		"claude-code": "#d97757",
+		codex: "#10a37f",
+		opencode: "#525252",
 	};
 	return colors[provider] || "#6b7280";
 };
@@ -279,6 +289,12 @@ export const getDefaultProfileName = (provider: ProviderType): string => {
 			return "Custom endpoint";
 		case "agent":
 			return "Agent (OpenResponses)";
+		case "claude-code":
+			return "Claude Code";
+		case "codex":
+			return "Codex";
+		case "opencode":
+			return "opencode";
 		case "ollama":
 		default:
 			return "Local Ollama";
@@ -305,6 +321,10 @@ export const getDefaultModel = (provider: ProviderType): string => {
 			return "gpt-4o-mini";
 		case "agent":
 			return "openclaw";
+		case "claude-code":
+		case "codex":
+		case "opencode":
+			return CLI_DEFAULT_MODEL;
 		case "ollama":
 		default:
 			return "llama3.2";
@@ -329,6 +349,11 @@ export const getDefaultEndpoint = (provider: ProviderType): string => {
 			return "http://localhost:11434/v1";
 		case "agent":
 			return "http://localhost:18789/v1/responses";
+		// For CLI agents the endpoint field holds the executable path.
+		case "claude-code":
+		case "codex":
+		case "opencode":
+			return CLI_DEFAULT_BINARY[provider];
 		case "custom":
 			return "";
 		case "azure":

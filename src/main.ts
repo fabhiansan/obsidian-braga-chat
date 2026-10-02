@@ -14,6 +14,7 @@ import { ProviderRegistry } from "./integrations/ProviderRegistry";
 import { AgentApiManager } from "./api/AgentApiManager";
 import { ChatStorage } from "./storage/ChatStorage";
 import { PluginUpdater } from "./updater/PluginUpdater";
+import { setCliAgentWorkspace } from "./api/cliAgents/CliAgentLanguageModel";
 import { StoredChatData, ChatSession } from "./types";
 import type { SyncLogEntry, SyncProgressSnapshot } from "./sync/SyncProgress";
 import type { SyncRetryRecord } from "./sync/SyncRetryStore";
@@ -26,7 +27,6 @@ import {
 	registerRibbonIcon,
 	registerEditorExtensions,
 	registerSettingsTab,
-	registerUpdater,
 	activateChatView,
 	openSessionInNewTab,
 	checkForUpdates,
@@ -97,6 +97,9 @@ export default class ObsidianAIPlugin extends Plugin {
 			callback: () => this.activateChatView(),
 		});
 
+		const adapter = this.app.vault.adapter as { getBasePath?: () => string };
+		setCliAgentWorkspace(adapter.getBasePath?.() ?? null);
+
 		await initializeStorage(this);
 		console.info(
 			`[ObsidianAI] startup: initializeStorage done in ${Date.now() - onloadStart}ms`,
@@ -116,7 +119,8 @@ export default class ObsidianAIPlugin extends Plugin {
 		registerEditorExtensions(this);
 		registerCommands(this);
 		registerSettingsTab(this);
-		registerUpdater(this);
+		// Braga fork: no automatic update checks — they would pull upstream
+		// builds over this fork. Updates come through the vault's git instead.
 
 		setupEventHandlers(this);
 

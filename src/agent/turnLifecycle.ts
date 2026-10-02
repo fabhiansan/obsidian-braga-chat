@@ -44,7 +44,10 @@ import {
 } from "../context/semanticCompaction";
 import { buildSystemPrompt } from "../lib/systemPrompt";
 import { parseSlashCommand } from "../lib/slashCommand";
-import { handleDebugCommand } from "../lib/debugCommands";
+import {
+	handleDebugCommand,
+	type DebugCommandResult,
+} from "../lib/debugCommands";
 import { makeId } from "../lib/sessionUtils";
 import { stripThinkingTags } from "../components/MessageBubble";
 import type {
@@ -130,6 +133,16 @@ function formatPastSessionLinks(
 // ═══════════════════════════════════════════════════════
 // TURN LIFECYCLE
 // ═══════════════════════════════════════════════════════
+
+/** Braga fork: how a relay room routes a message (see src/sync/relayAgents.ts). */
+export interface SendOptions {
+	/** Answer with this profile instead of the tab's active one. */
+	profile?: ProviderProfile;
+	/** Only post the message; no model answers (another member's agent was mentioned). */
+	skipModel?: boolean;
+	/** Fields kept on the posted user message, e.g. a remote sender. */
+	userMessage?: Partial<ChatMessage>;
+}
 
 export class TurnLifecycle {
 	private compactionBySession: Record<string, CompactionMetadata> = {};
@@ -346,7 +359,11 @@ export class TurnLifecycle {
 	// ─────────────────────────────────────────────────────
 	// SEND
 	// ─────────────────────────────────────────────────────
-	send = async (text: string, attachments?: Attachment[]): Promise<void> => {
+	send = async (
+		text: string,
+		attachments?: Attachment[],
+		options: SendOptions = {},
+	): Promise<void> => {
 		const deps = this.getDeps();
 
 		if (
@@ -354,29 +371,28 @@ export class TurnLifecycle {
 			deps.getRuntime(deps.activeSessionIdRef.current).controller
 		)
 			return;
+		const fromRelay = Boolean(options.userMessage?.remote);
 
 		// Check for local debug commands before selecting the single- or group-chat
 		// execution path. Built-in ! commands must never reach a model.
 		const currentSession = deps.sessionsRef.current.find(
 			(s) => s.id === deps.activeSessionIdRef.current,
 		);
-		const debugResult = handleDebugCommand(
-			text,
-			currentSession,
-			deps.resolvedProfile,
-			{
-				toolHistoryMode:
-					deps.plugin.settings.toolHistoryMode ?? "elide",
-				maxRequestTokens: deps.plugin.settings.maxRequestTokens,
-				maxContextMessages: deps.plugin.settings.maxContextMessages,
-				maxToolResultTokens: deps.plugin.settings.maxToolResultTokens,
-				preserveRecentMessages:
-					deps.plugin.settings.preserveRecentMessages,
-				requestResponseReserveTokens:
-					deps.plugin.settings.requestResponseReserveTokens,
-				enableAgentTools: deps.plugin.settings.enableAgentTools,
-			},
-		);
+		const debugResult: DebugCommandResult = fromRelay
+			? { handled: false }
+			: handleDebugCommand(text, currentSession, deps.resolvedProfile, {
+					toolHistoryMode:
+						deps.plugin.settings.toolHistoryMode ?? "elide",
+					maxRequestTokens: deps.plugin.settings.maxRequestTokens,
+					maxContextMessages: deps.plugin.settings.maxContextMessages,
+					maxToolResultTokens:
+						deps.plugin.settings.maxToolResultTokens,
+					preserveRecentMessages:
+						deps.plugin.settings.preserveRecentMessages,
+					requestResponseReserveTokens:
+						deps.plugin.settings.requestResponseReserveTokens,
+					enableAgentTools: deps.plugin.settings.enableAgentTools,
+				});
 		if (debugResult.handled) {
 			const response =
 				debugResult.action === "compact"
@@ -545,7 +561,7 @@ export class TurnLifecycle {
 
 		// ─── SINGLE CHAT PATH ───
 
-		const slashCmd = parseSlashCommand(text);
+		const slashCmd = fromRelay ? null : parseSlashCommand(text);
 		let sendText = text;
 		let sendContextItems = deps.contextItemsRef.current;
 		let commandMeta: ChatMessage["command"] = undefined;
@@ -596,7 +612,10 @@ export class TurnLifecycle {
 		if (!currentActiveId) return;
 
 		// ─── HUMAN-ONLY TAB: No AI selected ───
-		if (selectedIds.length === 0) {
+		if (
+			options.skipModel ||
+			(selectedIds.length === 0 && !options.profile)
+		) {
 			const userMsg: ChatMessage = {
 				id: makeId(),
 				role: "user",
@@ -606,6 +625,7 @@ export class TurnLifecycle {
 					attachments && attachments.length > 0
 						? attachments
 						: undefined,
+				...options.userMessage,
 			};
 			deps.setSessions((prev) =>
 				prev.map((s) =>
@@ -623,7 +643,8 @@ export class TurnLifecycle {
 
 		// ChatApp has already resolved the active tab's identity, including the
 		// legacy last-assistant model fallback. Use that same value for execution.
-		const activeProfile: ProviderProfile = deps.resolvedProfile;
+		const activeProfile: ProviderProfile =
+			options.profile ?? deps.resolvedProfile;
 
 		// Resolve attachments before computing token estimate
 		let resolvedAttachmentParts: import("../api").MessageContentPart[] = [];
@@ -663,6 +684,7 @@ export class TurnLifecycle {
 					? (resolvedAttachmentParts as ResolvedMessagePart[])
 					: undefined,
 			estimatedTokens: userTokenEstimate,
+			...options.userMessage,
 		};
 
 		deps.plugin.logger?.log(
@@ -1189,6 +1211,7 @@ export class TurnLifecycle {
 				estimatedTokens: assistantTokenEstimate,
 				requestTokenEstimate: fullPayloadTokenEstimate,
 				providerUsage,
+				agentName: activeProfile.name,
 				modelName: activeProfile.model,
 				responseTimeMs: Date.now() - streamStartTime,
 				toolCalls:

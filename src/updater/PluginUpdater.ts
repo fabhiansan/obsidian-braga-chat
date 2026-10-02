@@ -44,7 +44,7 @@ export interface UpdateCheckResult {
 	latestCommit?: CommitInfo | null;
 }
 
-const GITHUB_REPO = "space-cadet/obsidian-ai";
+const GITHUB_REPO = "fabhiansan/obsidian-braga-chat";
 const RELEASE_FILES = ["main.js", "manifest.json", "styles.css"];
 
 /** Simple semver comparison: returns >0 if v1 > v2, <0 if v1 < v2, 0 if equal.

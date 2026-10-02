@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 import { MarkdownView, Notice, TFile, WorkspaceLeaf } from "obsidian";
-import { TurnLifecycle } from "../agent/turnLifecycle";
+import { TurnLifecycle, type SendOptions } from "../agent/turnLifecycle";
 import type { ChatPluginLike } from "../views/ObsidianAIChatView";
 import type {
 	ChatMessage,
@@ -65,7 +65,11 @@ export function useMessageActions(deps: UseMessageActionsDeps) {
 	// LIFECYCLE ACTIONS (delegated to TurnLifecycle)
 	// ═══════════════════════════════════════════════════════
 	const handleSend = useCallback(
-		async (text: string, attachments?: import("../types").Attachment[]) => {
+		async (
+			text: string,
+			attachments?: import("../types").Attachment[],
+			options?: SendOptions,
+		) => {
 			// Index-only boot hard-gate: never send into a session whose messages
 			// are still on disk — appending to an empty in-memory copy would make
 			// the next save overwrite the real file. Await hydration first.
@@ -94,7 +98,7 @@ export function useMessageActions(deps: UseMessageActionsDeps) {
 					d.setSessions(d.sessionsRef.current);
 				}
 			}
-			await lifecycleRef.current!.send(text, attachments);
+			await lifecycleRef.current!.send(text, attachments, options);
 		},
 		[],
 	);

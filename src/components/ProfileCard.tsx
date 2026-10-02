@@ -10,6 +10,7 @@ import {
 } from "../settings";
 import { ChatPluginLike } from "../views/ObsidianAIChatView";
 import { Notice } from "obsidian";
+import { isCliAgentProvider } from "../api/cliAgents/CliAgentLanguageModel";
 
 // ─── Provider metadata ─────────────────────────────────────────────
 
@@ -25,6 +26,9 @@ const PROVIDER_META: Partial<
 	azure: { label: "Azure", color: "#0078D4", icon: "Az" },
 	custom: { label: "Custom", color: "#888888", icon: "C" },
 	agent: { label: "Agent", color: "#00D26A", icon: "🤖" },
+	"claude-code": { label: "Claude Code", color: "#D97757", icon: "CC" },
+	codex: { label: "Codex", color: "#10A37F", icon: "Cx" },
+	opencode: { label: "opencode", color: "#525252", icon: "oc" },
 };
 
 function getProviderMeta(provider: ProviderType) {
@@ -245,6 +249,9 @@ function ProfileEditForm({
 					<option value="azure">Azure OpenAI</option>
 					<option value="custom">Custom/OpenAI-compatible</option>
 					<option value="agent">Agent (OpenResponses)</option>
+					<option value="claude-code">Claude Code (subscription)</option>
+					<option value="codex">Codex CLI (ChatGPT login)</option>
+					<option value="opencode">opencode</option>
 				</select>
 			</div>
 
@@ -304,7 +311,7 @@ function ProfileEditForm({
 				)}
 			</div>
 
-			{draft.provider !== "ollama" && (
+			{draft.provider !== "ollama" && !isCliAgentProvider(draft.provider) && (
 				<div className="obsidian-ai-profile-edit-row">
 					<label>API Key</label>
 					<div className="obsidian-ai-api-key-control">
@@ -316,7 +323,9 @@ function ProfileEditForm({
 			)}
 
 			<div className="obsidian-ai-profile-edit-row">
-				<label>Endpoint</label>
+				<label>
+					{isCliAgentProvider(draft.provider) ? "CLI path" : "Endpoint"}
+				</label>
 				<input
 					type="text"
 					value={

@@ -9,6 +9,12 @@ export function getAgentColor(provider: string): string {
 			return "#f43f5e";
 		case "agent":
 			return "#06b6d4";
+		case "claude-code":
+			return "#d97757";
+		case "codex":
+			return "#10a37f";
+		case "opencode":
+			return "#525252";
 		default:
 			return "#8b5cf6";
 	}
@@ -25,6 +31,10 @@ export function getAgentIcon(provider: string): string {
 			return "🧠";
 		case "agent":
 			return "☁️";
+		case "claude-code":
+		case "codex":
+		case "opencode":
+			return "💻";
 		default:
 			return "🤖";
 	}

@@ -26,6 +26,10 @@ import type { ToolCall, ToolResult } from "../agent/types";
 import { Orchestrator, AgentResponse } from "../agent/Orchestrator";
 import { ParticipantRouter } from "../agent/ParticipantRouter";
 import { parseMentions } from "../agent/MentionParser";
+import {
+	profileForRemoteMessage,
+	routeOwnMessage,
+} from "../sync/relayAgents";
 import { getAgentColor, getAgentIcon } from "../lib/agentVisuals";
 import { contextItemKey, sameContextItems } from "../lib/contextUtils";
 import { parseSlashCommand, SlashCommand } from "../lib/slashCommand";
@@ -657,6 +661,31 @@ const ChatApp: React.FC<ChatAppProps> = ({
 		return session?.relayEnabled ?? false;
 	}, [sessions, activeSessionId]);
 
+	// Braga fork: answer a relay message that mentions one of my agents.
+	// Returns true when it started a turn (the turn posts the message itself).
+	const answerRemoteMentionRef = useRef<(msg: ChatMessage) => boolean>(
+		() => false,
+	);
+	answerRemoteMentionRef.current = (msg) => {
+		if (msg.role !== "user" || participantRouter) return false;
+		const profile = profileForRemoteMessage(
+			msg.content,
+			plugin.settings.providerProfiles,
+		);
+		if (!profile) return false;
+		if (getRuntime(activeSessionIdRef.current).controller) {
+			new Notice(
+				`${profile.name} is busy; the message from ${msg.fromUserId} was not answered.`,
+			);
+			return false;
+		}
+		void actions.handleSend(msg.content, undefined, {
+			profile,
+			userMessage: msg,
+		});
+		return true;
+	};
+
 	// Connect/disconnect sync adapter when relayEnabled changes
 	useEffect(() => {
 		if (!activeSessionId) return;
@@ -685,6 +714,7 @@ const ChatApp: React.FC<ChatAppProps> = ({
 				}
 			});
 			adapter.onMessage((remoteMsg) => {
+				if (answerRemoteMentionRef.current(remoteMsg)) return;
 				// Append remote message to current session
 				setSessions((prev) =>
 					prev.map((s) =>
@@ -760,47 +790,70 @@ const ChatApp: React.FC<ChatAppProps> = ({
 		);
 	}, [activeSessionId, setSessions]);
 
-	// Wrap handleSend to also sync to relay (only if ParticipantRouter is not handling it)
+	// Wrap handleSend to route @mentions in a relay room (only if
+	// ParticipantRouter is not handling it). Braga fork: the message is shared
+	// with the room by the effect below, so it arrives before the answer.
 	const handleSendWithSync = useCallback(
 		async (text: string, attachments?: import("../types").Attachment[]) => {
-			await actions.handleSend(text, attachments);
-			// Only do legacy relay sync if ParticipantRouter is not active
-			if (
-				!participantRouter &&
-				syncAdapterRef.current &&
-				relayConnected
-			) {
-				const userMsg: ChatMessage = {
-					id: makeId(),
-					role: "user",
-					content: text,
-					timestamp: Date.now(),
-					attachments:
-						attachments && attachments.length > 0
-							? attachments
-							: undefined,
-					resolvedParts:
-						attachments && attachments.length > 0
-							? await resolveAttachments(
-									attachments,
-									plugin.app,
-									resolvedProfile.provider,
-								)
-							: undefined,
-				};
-				syncAdapterRef.current.sendMessage(userMsg).catch((err) => {
-					console.warn("[ChatApp] Failed to sync message:", err);
-				});
+			if (!participantRouter && syncAdapterRef.current && relayConnected) {
+				const route = routeOwnMessage(
+					text,
+					plugin.settings.providerProfiles,
+				);
+				if (route.kind === "answer") {
+					await actions.handleSend(text, attachments, {
+						profile: route.profile,
+					});
+					return;
+				}
+				if (route.kind === "skip") {
+					await actions.handleSend(text, attachments, {
+						skipModel: true,
+					});
+					return;
+				}
 			}
+			await actions.handleSend(text, attachments);
 		},
 		[
 			actions.handleSend,
-			plugin.app,
+			plugin.settings,
 			relayConnected,
 			participantRouter,
-			resolvedProfile.provider,
 		],
 	);
+
+	// Braga fork: share each new local message — mine and my agents' answers —
+	// with the room. Messages already in the tab when the relay connects are
+	// not re-sent.
+	const relayedIdsRef = useRef<Set<string>>(new Set());
+	useEffect(() => {
+		relayedIdsRef.current = new Set(messagesRef.current.map((m) => m.id));
+	}, [relayConnected, activeSessionId]);
+	useEffect(() => {
+		const adapter = syncAdapterRef.current;
+		if (!relayConnected || participantRouter || !adapter) return;
+		for (const m of messages) {
+			if (relayedIdsRef.current.has(m.id)) continue;
+			relayedIdsRef.current.add(m.id);
+			if (m.remote || m.isDebug || m.isError || !m.content.trim()) continue;
+			if (m.role !== "user" && m.role !== "assistant") continue;
+			adapter
+				.sendMessage({
+					id: m.id,
+					role: m.role,
+					content: m.content,
+					timestamp: m.timestamp,
+					attachments: m.attachments,
+					resolvedParts: m.resolvedParts,
+					agentName: m.agentName,
+					modelName: m.modelName,
+				})
+				.catch((err) => {
+					console.warn("[ChatApp] Failed to sync message:", err);
+				});
+		}
+	}, [messages, relayConnected, participantRouter]);
 
 	// Sync selectedProfileIds into the active session whenever they change
 	useEffect(() => {

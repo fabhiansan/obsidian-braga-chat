@@ -136,6 +136,12 @@ export function getProviderLabel(provider: string): string {
 			return "Custom endpoint";
 		case "agent":
 			return "Agent (OpenResponses)";
+		case "claude-code":
+			return "Claude Code";
+		case "codex":
+			return "Codex";
+		case "opencode":
+			return "opencode";
 		default:
 			return "OpenAI";
 	}

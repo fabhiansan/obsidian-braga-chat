@@ -105,6 +105,9 @@ export class WebSocketSyncAdapter implements SyncAdapter {
 										? data.timestamp
 										: Date.now(),
 								agentId: data.sender,
+								// Braga fork: show which member's agent answered.
+								agentName: data.agentName,
+								modelName: data.modelName,
 								attachments: data.attachments,
 								resolvedParts: data.resolvedParts,
 								// Mark as remote message from relay

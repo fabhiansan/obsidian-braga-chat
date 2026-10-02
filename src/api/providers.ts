@@ -7,6 +7,10 @@ import { createDeepSeek } from "@ai-sdk/deepseek";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { getDefaultEndpoint, ProviderProfile } from "../settings";
 import type { ProviderTokenUsage } from "../types";
+import {
+	CliAgentLanguageModel,
+	CLI_DEFAULT_MODEL,
+} from "./cliAgents/CliAgentLanguageModel";
 
 export function normalizeProviderUsage(usage: {
 	inputTokens?: number;
@@ -53,6 +57,9 @@ export function validateProfile(profile: ProviderProfile): string | null {
 			}
 			return null;
 		case "ollama":
+		case "claude-code":
+		case "codex":
+		case "opencode":
 			return null;
 		default:
 			return `Unsupported provider: ${profile.provider}`;
@@ -186,6 +193,15 @@ export function createLanguageModel(
 				return provider.chat(profile.model);
 			}
 
+			case "claude-code":
+			case "codex":
+			case "opencode":
+				return new CliAgentLanguageModel({
+					kind: profile.provider,
+					model: profile.model,
+					binary: profile.customURL,
+				});
+
 			default:
 				new Notice(
 					`⚠️ Unsupported provider: ${(profile as ProviderProfile).provider}`,
@@ -278,6 +294,14 @@ export async function fetchProviderModels(
 					.map((m: any) => m.id)
 					.filter((id: string) => id.includes("kimi"));
 			}
+
+			case "claude-code":
+				return [CLI_DEFAULT_MODEL, "sonnet", "opus", "haiku"];
+
+			case "codex":
+			case "opencode":
+				// The CLI's own config picks the model; type a name to override.
+				return [CLI_DEFAULT_MODEL];
 
 			case "ollama": {
 				const baseURL =
