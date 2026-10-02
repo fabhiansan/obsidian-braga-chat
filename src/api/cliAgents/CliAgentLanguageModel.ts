@@ -212,9 +212,11 @@ export class CliAgentLanguageModel implements LanguageModelV4 {
 					once: true,
 				});
 
+				const cwd = workspaceDir ?? undefined;
 				child = spawn(binary, args, {
-					cwd: workspaceDir ?? undefined,
-					env: { ...process.env, PATH },
+					cwd,
+					// opencode resolves its project from $PWD, not the process cwd.
+					env: { ...process.env, PATH, ...(cwd ? { PWD: cwd } : {}) },
 					stdio: ["pipe", "pipe", "pipe"],
 				});
 
