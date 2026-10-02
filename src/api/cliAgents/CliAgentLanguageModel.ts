@@ -19,6 +19,11 @@ import type {
 } from "@ai-sdk/provider";
 import type { ChildProcess } from "child_process";
 import { createEventParser, type CliAgentKind } from "./eventParsers";
+import {
+	loadCliModelInfo,
+	supportedEffort,
+	type CliModelInfoMap,
+} from "./cliModelInfo";
 
 export type { CliAgentKind } from "./eventParsers";
 
@@ -53,6 +58,11 @@ export function setCliAgentWorkspace(dir: string | null): void {
 	workspaceDir = dir;
 }
 
+/** Model names and effort levels for the picker (cached after the first read). */
+export function getCliModelInfo(kind: CliAgentKind): Promise<CliModelInfoMap> {
+	return loadCliModelInfo(kind, workspaceDir);
+}
+
 // Obsidian started from the Dock gets a minimal PATH, without Homebrew, mise
 // or ~/.local/bin. Ask the login shell once for the real one.
 let shellPathPromise: Promise<string> | null = null;
@@ -84,11 +94,19 @@ function resolveShellPath(): Promise<string> {
 	return shellPathPromise;
 }
 
-export function buildCliArgs(kind: CliAgentKind, model: string): string[] {
-	const modelFlag =
-		model && model !== CLI_DEFAULT_MODEL
-			? [kind === "claude-code" ? "--model" : "-m", model]
-			: [];
+/** `effort` must already be one the model supports (see supportedEffort). */
+export function buildCliArgs(
+	kind: CliAgentKind,
+	model: string,
+	effort?: string,
+): string[] {
+	const hasModel = Boolean(model) && model !== CLI_DEFAULT_MODEL;
+	// opencode takes the effort as a model variant: provider/model#variant.
+	const modelArg =
+		kind === "opencode" && hasModel && effort ? `${model}#${effort}` : model;
+	const modelFlag = hasModel
+		? [kind === "claude-code" ? "--model" : "-m", modelArg]
+		: [];
 	switch (kind) {
 		case "claude-code":
 			// acceptEdits: file edits run without asking; shell commands are denied.
@@ -101,6 +119,7 @@ export function buildCliArgs(kind: CliAgentKind, model: string): string[] {
 				"--permission-mode",
 				"acceptEdits",
 				...modelFlag,
+				...(effort ? ["--effort", effort] : []),
 			];
 		case "codex":
 			return [
@@ -110,6 +129,7 @@ export function buildCliArgs(kind: CliAgentKind, model: string): string[] {
 				"--sandbox",
 				"workspace-write",
 				...modelFlag,
+				...(effort ? ["-c", `model_reasoning_effort="${effort}"`] : []),
 				"-",
 			];
 		case "opencode":
@@ -131,6 +151,8 @@ export async function listCliModels(
 	kind: CliAgentKind,
 	binary?: string,
 ): Promise<string[]> {
+	// Re-read names and effort levels too, so "Refresh models" picks up edits.
+	await loadCliModelInfo(kind, workspaceDir, true);
 	try {
 		switch (kind) {
 			case "claude-code":
@@ -226,6 +248,8 @@ export interface CliAgentModelConfig {
 	model: string;
 	/** Executable name or absolute path; empty uses the default name. */
 	binary?: string;
+	/** Thinking effort; dropped when the model doesn't list it. */
+	effort?: string;
 }
 
 export class CliAgentLanguageModel implements LanguageModelV4 {
@@ -244,7 +268,9 @@ export class CliAgentLanguageModel implements LanguageModelV4 {
 	): Promise<LanguageModelV4StreamResult> {
 		const { kind } = this.config;
 		const binary = this.config.binary?.trim() || CLI_DEFAULT_BINARY[kind];
-		const args = buildCliArgs(kind, this.config.model);
+		const info = await loadCliModelInfo(kind, workspaceDir);
+		const effort = supportedEffort(info, this.modelId, this.config.effort);
+		const args = buildCliArgs(kind, this.config.model, effort);
 		const input = renderPrompt(options.prompt);
 		const PATH = await resolveShellPath();
 		const { spawn } = require("child_process") as typeof import("child_process");

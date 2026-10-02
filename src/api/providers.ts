@@ -200,6 +200,7 @@ export function createLanguageModel(
 					kind: profile.provider,
 					model: profile.model,
 					binary: profile.customURL,
+					effort: profile.reasoningEffort,
 				});
 
 			default:

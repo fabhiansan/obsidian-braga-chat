@@ -168,6 +168,22 @@ describe("CLI arguments and prompt", () => {
 		expect(buildCliArgs("codex", "gpt-5").slice(-3)).toEqual(["-m", "gpt-5", "-"]);
 	});
 
+	it("passes the thinking effort in each CLI's own form", () => {
+		expect(buildCliArgs("claude-code", "opus", "max").slice(-2)).toEqual([
+			"--effort",
+			"max",
+		]);
+		expect(buildCliArgs("codex", "gpt-5", "high").slice(-3)).toEqual([
+			"-c",
+			'model_reasoning_effort="high"',
+			"-",
+		]);
+		expect(
+			buildCliArgs("opencode", "factory/deepseek-v4.1-flash", "low"),
+		).toEqual(expect.arrayContaining(["-m", "factory/deepseek-v4.1-flash#low"]));
+		expect(buildCliArgs("opencode", "default", "low")).not.toContain("-m");
+	});
+
 	it("renders system prompt and transcript", () => {
 		const prompt = renderPrompt([
 			{ role: "system", content: "Persona" },

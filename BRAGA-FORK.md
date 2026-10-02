@@ -21,6 +21,7 @@ Fork edits in upstream files are marked `Braga fork` in comments.
 - The profile's **CLI path** field holds the executable (default `claude`, `codex`, `opencode`). The login shell `PATH` is used, so Homebrew and mise installs are found.
 - Model `default` lets the CLI pick; otherwise it is passed as `--model` / `-m`.
 - The model picker fills itself on first open: `opencode models`, Codex's `~/.codex/models_cache.json` (or `$CODEX_HOME`), and the Claude aliases `sonnet` / `opus` / `haiku`. Use the picker's refresh button after logging into a new opencode provider.
+- Model names and **thinking effort** levels come from the CLI's own files (`~/.cache/opencode/models.json` + opencode config `variants`, Codex `models_cache.json`; Claude: low…max). Pick the effort in the model picker; it is saved on the profile (`reasoningEffort`) and passed as `--effort` (Claude), `-c model_reasoning_effort=…` (Codex) or `provider/model#variant` (opencode). An effort the selected model doesn't list is dropped, so switching models never breaks a run.
 - Permissions: Claude Code `--permission-mode acceptEdits` (edits yes, shell commands no), Codex `--sandbox workspace-write`, opencode `--auto`.
 - Each request is a fresh CLI run with the whole transcript as the prompt.
 

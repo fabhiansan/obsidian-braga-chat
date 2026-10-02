@@ -6664,3 +6664,88 @@
 	background: var(--background-primary);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
+
+/* ── Model picker (portaled to <body>, so not under .chat-panel) ──── */
+
+.chat-model-switcher-dropdown .braga-effort-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px;
+	padding: 6px 10px 8px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.chat-model-switcher-dropdown .braga-effort-label {
+	margin-right: 4px;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-faint);
+}
+
+.chat-model-switcher-dropdown .braga-effort-chip {
+	height: 22px;
+	padding: 0 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 999px;
+	background: transparent;
+	box-shadow: none;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	cursor: pointer;
+}
+
+.chat-model-switcher-dropdown .braga-effort-chip:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.chat-model-switcher-dropdown .braga-effort-chip.is-active {
+	border-color: transparent;
+	background: color-mix(in srgb, var(--interactive-accent) 18%, transparent);
+	color: var(--interactive-accent);
+	font-weight: var(--font-medium);
+}
+
+.chat-model-switcher-dropdown .chat-model-switcher-item .chat-model-switcher-item-model {
+	max-width: 50%;
+	color: var(--text-faint);
+	font-size: 0.8em;
+}
+
+.chat-model-switcher-dropdown .chat-model-switcher-list {
+	padding: 4px;
+}
+
+.chat-model-switcher-dropdown .chat-model-switcher-item {
+	height: auto;
+	border: none;
+	border-radius: 7px;
+	background: transparent;
+	box-shadow: none;
+}
+
+.chat-model-switcher-dropdown .chat-model-switcher-item:hover {
+	background: var(--background-modifier-hover);
+}
+
+.chat-model-switcher-dropdown .chat-model-switcher-item.is-active {
+	background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+	color: var(--text-normal);
+}
+
+.chat-model-switcher-dropdown .chat-model-switcher-item.is-active svg {
+	color: var(--interactive-accent);
+}
+
+.chat-model-switcher-dropdown .chat-model-switcher-refresh {
+	height: auto;
+	border: none;
+	background: transparent;
+	box-shadow: none;
+	color: var(--text-muted);
+}
+
+.chat-model-switcher-dropdown .chat-model-switcher-refresh:hover:not(:disabled) {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}

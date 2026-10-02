@@ -13,7 +13,14 @@ import { getProviderColor } from "../../settings";
 import { ChatPluginLike } from "../../views/ObsidianAIChatView";
 import ObsidianIcon from "../ObsidianIcon";
 import { getRecentModels, rememberRecentModel } from "../../lib/recentModels";
-import { isCliAgentProvider } from "../../api/cliAgents/CliAgentLanguageModel";
+import {
+	getCliModelInfo,
+	isCliAgentProvider,
+} from "../../api/cliAgents/CliAgentLanguageModel";
+import {
+	supportedEffort,
+	type CliModelInfoMap,
+} from "../../api/cliAgents/cliModelInfo";
 
 // ─── Fallback model lists per provider ─────────────────────────────
 
@@ -91,6 +98,11 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 	const [models, setModels] = useState<Record<string, string[]>>({});
 	const [selectedModel, setSelectedModel] = useState(profile.model);
 	const [fetching, setFetching] = useState(false);
+	// Braga fork: CLI model display names and thinking-effort levels.
+	const [cliInfo, setCliInfo] = useState<CliModelInfoMap | undefined>();
+	const [effortOverride, setEffortOverride] = useState<
+		Record<string, string>
+	>({});
 	const containerRef = useRef<HTMLDivElement>(null);
 	const triggerRef = useRef<HTMLButtonElement>(null);
 	const dropdownRef = useRef<HTMLDivElement>(null);
@@ -294,8 +306,12 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 	const filteredModels = useMemo(() => {
 		if (!search.trim()) return allModels;
 		const q = search.trim().toLowerCase();
-		return allModels.filter((m) => m.toLowerCase().includes(q));
-	}, [allModels, search]);
+		return allModels.filter(
+			(m) =>
+				m.toLowerCase().includes(q) ||
+				cliInfo?.[m]?.label?.toLowerCase().includes(q),
+		);
+	}, [allModels, search, cliInfo]);
 
 	const handleSelectModel = useCallback(
 		async (model: string, targetProfile?: ProviderProfile) => {
@@ -395,6 +411,38 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 		}
 	}, [isOpen, activeProfile.id]);
 
+	useEffect(() => {
+		if (!isCliAgentProvider(activeProfile.provider)) {
+			setCliInfo(undefined);
+			return;
+		}
+		let cancelled = false;
+		void getCliModelInfo(activeProfile.provider).then((info) => {
+			if (!cancelled) setCliInfo(info);
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, [activeProfile.provider, models]);
+
+	const currentEffort =
+		effortOverride[activeProfile.id] ?? activeProfile.reasoningEffort ?? "";
+
+	const handleSelectEffort = useCallback(
+		async (effort: string) => {
+			setEffortOverride((prev) => ({ ...prev, [activeProfile.id]: effort }));
+			plugin.settings.providerProfiles = plugin.settings.providerProfiles.map(
+				(p) =>
+					p.id === activeProfile.id
+						? { ...p, reasoningEffort: effort || undefined, updatedAt: Date.now() }
+						: p,
+			);
+			await plugin.saveSettings();
+			plugin.chatapi.updateSettings(plugin.settings);
+		},
+		[activeProfile.id, plugin],
+	);
+
 	const handleOpenAgentModels = useCallback((agentId: string) => {
 		setSubmenuAgentId(agentId);
 		setSearch("");
@@ -417,6 +465,9 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 	const activeModelCount = Math.max(1, selectedProfileIds.size);
 	const currentModel = isMultiAgent ? activeProfile.model : selectedModel;
 	const triggerLabel = String(activeModelCount);
+	const modelLabel = (m: string) => cliInfo?.[m]?.label;
+	const effortLevels = cliInfo?.[currentModel]?.efforts ?? [];
+	const activeEffort = supportedEffort(cliInfo, currentModel, currentEffort) ?? "";
 	const toggleOpen = () => {
 		setIsOpen((prev) => {
 			if (prev) {
@@ -551,6 +602,33 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 										/>
 									</div>
 
+									{/* Braga fork: thinking effort for the current model */}
+									{effortLevels.length > 0 && (
+										<div
+											className="braga-effort-row"
+											role="radiogroup"
+											aria-label="Thinking effort"
+										>
+											<span className="braga-effort-label">
+												Thinking
+											</span>
+											{["", ...effortLevels].map((e) => (
+												<button
+													key={e || "default"}
+													type="button"
+													role="radio"
+													aria-checked={activeEffort === e}
+													className={`braga-effort-chip${activeEffort === e ? " is-active" : ""}`}
+													onClick={() =>
+														void handleSelectEffort(e)
+													}
+												>
+													{e || "Default"}
+												</button>
+											))}
+										</div>
+									)}
+
 									{/* ─── Model list ─── */}
 									<div className="chat-model-switcher-list">
 										{hasRecent && (
@@ -569,8 +647,13 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 														type="button"
 													>
 														<span className="chat-model-switcher-item-name">
-															{m}
+															{modelLabel(m) ?? m}
 														</span>
+														{modelLabel(m) && (
+															<span className="chat-model-switcher-item-model">
+																{m}
+															</span>
+														)}
 														{m === currentModel && (
 															<ObsidianIcon
 																icon="check"
@@ -603,8 +686,13 @@ export const ModelSwitcher: React.FC<ModelSwitcherProps> = ({
 													type="button"
 												>
 													<span className="chat-model-switcher-item-name">
-														{m}
+														{modelLabel(m) ?? m}
 													</span>
+													{modelLabel(m) && (
+														<span className="chat-model-switcher-item-model">
+															{m}
+														</span>
+													)}
 													{m === currentModel && (
 														<ObsidianIcon
 															icon="check"

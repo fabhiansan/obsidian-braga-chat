@@ -123,6 +123,8 @@ export interface ProviderProfile {
 	azureEndpoint?: string;
 	azureApiVersion?: string;
 	modelCache?: ModelCache;
+	// Braga fork: CLI agent thinking effort ("" or unset = the CLI's default)
+	reasoningEffort?: string;
 	// Agent provider fields
 	endpointUrl?: string; // Agent: OpenResponses endpoint URL
 	agentId?: string; // Agent: x-openclaw-agent-id header
